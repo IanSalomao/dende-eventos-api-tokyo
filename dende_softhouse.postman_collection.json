@@ -1,0 +1,420 @@
+{
+  "info": {
+    "_postman_id": "2bc9579d-8c60-4e77-b9bf-796dd095fe86",
+    "name": "Dendê Softhouse",
+    "description": "Esta collection documenta e organiza os endpoints da **Plataforma de Eventos**, permitindo o gerenciamento completo de **usuários**, **organizadores**, **eventos** e **ingressos**.\n\nA API atende dois perfis principais:\n\n- **Usuário Comum**\n    \n- **Usuário Organizador de Eventos**\n    \n\nOs endpoints estão organizados por domínio funcional, refletindo as User Stories do sistema.\n\nOs endpoints não estão com todos os campos das requisições completos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "4546480"
+  },
+  "item": [
+    {
+      "name": "usuarios",
+      "item": [
+        {
+          "name": "Cadastro de Usuário Comum",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nome\": \"Lucas Almeida Silva\", \n    \"dataNascimento\": \"1994-11-11\", \n    \"sexo\": \"M\", \n    \"email\": \"lucas@mail.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/usuarios",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "usuarios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Alterar Usuário",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nome\": \"Lucas Almeida Silva\", \n    \"dataNascimento\": \"1994-11-11\", \n    \"sexo\": \"M\", \n    \"email\": \"lucas@mail.com\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/usuarios/{{usuarioId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "usuarios",
+                "{{usuarioId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Visualizar Perfil do Usuário",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/usuarios/{{usuarioId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "usuarios",
+                "{{usuarioId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Desativar ou Reativar o Usuário",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/usuarios/{{usuarioId}}/{{status}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "usuarios",
+                "{{usuarioId}}",
+                "{{status}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "ingressos",
+      "item": [
+        {
+          "name": "Comprar Ingresso",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"usuario\": \"lucas@mail.com\",\n    \"totalPago\": 125.20\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/organizadores/{{organizadorId}}/eventos/{{eventoId}}/ingressos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "organizadores",
+                "{{organizadorId}}",
+                "eventos",
+                "{{eventoId}}",
+                "ingressos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancelar Ingresso",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/usuarios/{{usuarioId}}/ingressos/{{ingressoId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "usuarios",
+                "{{usuarioId}}",
+                "ingressos",
+                "{{ingressoId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Ingressos do Usuário",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/usuarios/{{usuarioId}}/ingressos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "usuarios",
+                "{{usuarioId}}",
+                "ingressos"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "eventos",
+      "item": [
+        {
+          "name": "Cadastrar Evento",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nome\": \"Meu Evento de Teste\", \n    \"paginaWebEvento\": \"https://www.meueventoteste.com\",\n    \"descricao\": \"Esse é um evento de teste para a minha plataforma. Vamos ter várias atrações\", \n    \"tipoEvento\": \"CULTURAL_ENTRETENIMENTO\",\n    \"modalidade\": \"PRESENCIAL\", \n    \"capacidadeMaxima\": 200, \n    \"dataInicio\": \"2026-01-30T18:50:00\", \n    \"dataFinal\": \"2026-01-30T19:30:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/organizadores/{{usuarioId}}/eventos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "organizadores",
+                "{{usuarioId}}",
+                "eventos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Alterar Evento",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nome\": \"Meu Evento de Teste\", \n    \"paginaWebEvento\": \"https://www.meueventoteste.com\",\n    \"descricao\": \"Esse é um evento de teste para a minha plataforma. Vamos ter várias atrações\", \n    \"tipoEvento\": \"CULTURAL_ENTRETENIMENTO\",\n    \"modalidade\": \"PRESENCIAL\", \n    \"capacidadeMaxima\": 200, \n    \"dataInicio\": \"2026-01-30T18:50:00\", \n    \"dataFinal\": \"2026-01-30T19:30:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/organizadores/{{organizadorId}}/eventos/{{eventId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "organizadores",
+                "{{organizadorId}}",
+                "eventos",
+                "{{eventId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Desativar ou Ativar Evento",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/organizadores/{{organizadorId}}/eventos/{{status}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "organizadores",
+                "{{organizadorId}}",
+                "eventos",
+                "{{status}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Eventos do Organizador",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/organizadores/{{organizadorId}}/eventos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "organizadores",
+                "{{organizadorId}}",
+                "eventos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Feed de Eventos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/eventos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "eventos"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "organizadores",
+      "item": [
+        {
+          "name": "Cadastro de Usuário Organizador",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nome\": \"Lucas Almeida Silva\", \n    \"dataNascimento\": \"1994-11-11\", \n    \"sexo\": \"M\", \n    \"email\": \"lucas@mail.com\",\n    \"cnpj\": \"\", \n    \"razaoSocial\": \"\", \n    \"nomeFantasia\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/organizadores",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "organizadores"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Alterar Usuário Organizador",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nome\": \"Lucas Almeida Silva\", \n    \"dataNascimento\": \"1994-11-11\", \n    \"sexo\": \"M\", \n    \"email\": \"lucas@mail.com\",\n    \"cnpj\": \"\", \n    \"razaoSocial\": \"\", \n    \"nomeFantasia\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/organizadores/{{organizadorId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "organizadores",
+                "{{organizadorId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Desativar ou Reativar Organizador",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/organizadores/{{organizadorId}}/{{status}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "organizadores",
+                "{{organizadorId}}",
+                "{{status}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Visualizar Perfil do Organizador",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/organizadores/{{organizadorId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "organizadores",
+                "{{organizadorId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
