@@ -50,11 +50,11 @@ Este projeto depende do framework educacional:
 
 **Integrantes do Time:**
 
-1. ____________________________________
-2. ____________________________________
-3. ____________________________________
-4. ____________________________________
-5. ____________________________________
+1. Anna Beatriz Silva Lima
+2. Valeria Soares Santos
+3. Rebeca Helem Batista Amorim 
+4. Fatima Pereira Santos Pinho
+5. Ian Salomão da Silva Carneiro
 
 ---
 
