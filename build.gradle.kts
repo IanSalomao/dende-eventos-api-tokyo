@@ -12,7 +12,7 @@ repositories {
 dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    implementation("io.github.lasilva:dendeframework:1.0.0")
+    implementation("io.github.lasilva:dendeframework:1.0.1")
 }
 
 tasks.test {
