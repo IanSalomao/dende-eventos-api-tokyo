@@ -5,6 +5,7 @@ import br.com.softhouse.dende.model.Organizador;
 import br.com.softhouse.dende.model.Usuario;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Repositorio {
@@ -29,6 +30,10 @@ public class Repositorio {
         evento.atribuirId(proximoIdEvento);
         eventos.put(proximoIdEvento, evento);
         proximoIdEvento ++;
+    }
+
+    public Organizador buscarOrganizador(String organizadorId){
+        return organizadores.get(organizadorId);
     }
 
     public Map<Long, Evento> listarEventos() {

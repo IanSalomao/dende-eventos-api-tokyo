@@ -17,11 +17,12 @@ public class EventoController {
     private final Repositorio repositorio;
 
     public EventoController() {
+
         this.repositorio = Repositorio.getInstance();
     }
 
     @PostMapping
-    public ResponseEntity<String> cadastroEvento(@RequestBody Evento evento){
+    public ResponseEntity<String> cadastrarEvento(@RequestBody Evento evento){
         ResultadoValidacao resultado = evento.validarDatas();
 
         if (!resultado.isValido()){

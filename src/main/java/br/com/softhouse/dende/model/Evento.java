@@ -24,6 +24,7 @@ public class Evento {
     private Boolean permiteEstorno;
     private BigDecimal taxaEstorno;
     private Evento eventoPrincipal;
+    private Organizador organizador;
 
     public Evento(
             final String nome,
@@ -173,7 +174,7 @@ public class Evento {
     }
 
     public void atribuirId(final long id){
-        if(this.id == 0){
+        if(this.id != 0){
             this.id = id;
         }
     }
@@ -192,8 +193,15 @@ public class Evento {
         if (Duration.between(this.dataHoraInicio, this.dataHoraFim).toMinutes() < 30){
             return new ResultadoValidacao(false, "Evento não pode durar menos de 30 min.");
         }
-
         return new ResultadoValidacao(true, "Intervalo válido.");
+    }
+
+    public Organizador getOrganizador() {
+        return organizador;
+    }
+
+    public void setOrganizador(Organizador organizador) {
+        this.organizador = organizador;
     }
 }
 

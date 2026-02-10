@@ -1,5 +1,8 @@
 package br.com.softhouse.dende.model;
 
+import br.com.dende.softhouse.process.route.ResponseEntity;
+import br.com.softhouse.dende.repositories.Repositorio;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -106,5 +109,18 @@ public class Organizador {
                 ", razaoSocial='" + razaoSocial + '\'' +
                 ", nomeFantasia='" + nomeFantasia + '\'' +
                 '}';
+    }
+
+    public ResultadoValidacao cadastrarEvento(Evento novoEvento){
+
+        ResultadoValidacao resultado = novoEvento.validarDatas();
+        if(!resultado.isValido()){
+            return resultado;
+        }
+        novoEvento.setOrganizador(this);
+        Repositorio.getInstance().salvarEvento(novoEvento);
+
+        return new ResultadoValidacao(true, "Evento" + novoEvento.getNome() + "de ID" +
+                novoEvento.getId() + "cadastrado com sucesso" );
     }
 }
