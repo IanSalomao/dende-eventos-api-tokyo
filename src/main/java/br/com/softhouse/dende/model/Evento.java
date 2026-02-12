@@ -36,7 +36,6 @@ public class Evento {
             final ModalidadeEvento modalidade,
             final Integer capacidadeMaxima,
             final String localAcesso,
-            final StatusEvento status,
             final BigDecimal precoIngresso,
             final Boolean permiteEstorno,
             final BigDecimal taxaEstorno,
@@ -51,12 +50,12 @@ public class Evento {
         this.modalidade = modalidade;
         this.capacidadeMaxima = capacidadeMaxima;
         this.localAcesso = localAcesso;
-        this.status = status;
         this.precoIngresso = precoIngresso;
         this.permiteEstorno = permiteEstorno;
         this.taxaEstorno = taxaEstorno;
         this.eventoPrincipal = eventoPrincipal;
 
+        this.status = StatusEvento.INATIVO;
         validarInvariantes();
     }
 
@@ -180,27 +179,24 @@ public class Evento {
     }
 
     public void atribuirId(final long id){
-        if(this.id != 0){
-            this.id = id;
-        }
+        if(this.id == 0) this.id = id;
     }
-
     private void validarDatas(LocalDateTime dataHoraInicio, LocalDateTime dataHoraFim) {
 
-        if (dataHoraInicio == null || dataHoraFim == null){throw new IllegalArgumentException("Datas e Horários não podem ser nulos.");}
+        if (dataHoraInicio == null || dataHoraFim == null) throw new IllegalArgumentException("Datas e Horários não podem ser nulos.");
+        if (dataHoraInicio.isBefore(LocalDateTime.now()))throw new IllegalArgumentException("Data e horário iniciais não podem ser antetiores as atuais");
 
         long duracaoMinutos = Duration.between(dataHoraInicio, dataHoraFim).toMinutes();
-        if (duracaoMinutos < 0){throw new IllegalArgumentException("Data e horário finais não podem ser antriores a data e horário iniciais.");}
-        if (duracaoMinutos < 30){throw new IllegalArgumentException("Evento não pode durar menos de 30 min.");}
+        if (duracaoMinutos < 0) throw new IllegalArgumentException("Data e horário finais não podem ser antriores a data e horário iniciais.");
+        if (duracaoMinutos < 30) throw new IllegalArgumentException("Evento não pode durar menos de 30 min.");
     }
 
     private void validarNome(String nome) {
-        if (nome == null || nome.trim().isEmpty()) {throw new IllegalArgumentException("Nome não pode ser vazio");}
+        if (nome == null || nome.trim().isEmpty()) throw new IllegalArgumentException("Nome não pode ser vazio");
     }
 
     private void validarCapacidade(Integer capacidade) {
-        if (capacidade != null && capacidade <= 0) {throw new IllegalArgumentException("Capacidade não pode ser negativa ou " +
-                "igual a zero");}
+        if (capacidade != null && capacidade <= 0) throw new IllegalArgumentException("Capacidade não pode ser negativa ou igual a zero");
     }
 
     private void validarPreco(BigDecimal preco) {
@@ -218,13 +214,15 @@ public class Evento {
     }
 
     public void atribuirOrganizador(Organizador organizador) {
-        if (this.organizador == null) {throw new IllegalArgumentException("Esse evento já possui organizador");}
+        if (this.organizador != null) throw new IllegalArgumentException("Esse evento já possui organizador");
+
+        this.organizador = organizador;
     }
 
     public void alterarDados(Evento novosDados){
 
         if (this.status != StatusEvento.ATIVO){
-            throw new IllegalArgumentException("Apenas eventos ativos podem ser alterados");
+            throw new IllegalArgumentException("Apenas eventos ativos podem ser alterados. Status atual: " + this.status);
         }
 
         LocalDateTime novoHorarioInicio = (novosDados.getDataHoraInicio() != null) ? novosDados.getDataHoraInicio() : this.dataHoraInicio;

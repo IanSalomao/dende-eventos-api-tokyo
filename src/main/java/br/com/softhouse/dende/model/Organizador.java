@@ -121,8 +121,8 @@ public class Organizador {
         Repositorio.getInstance().salvarEvento(novoEvento);
     }
 
-    public List<Evento> listarMeusEventos(){
-        return Repositorio.getInstance().listarEventosFiltrados(this.email, null);
+    public List<EventoOrganizadorDTO> listarMeusEventos(){
+        return Repositorio.getInstance().listarEventosOrganizador(this.email, null);
     }
 
     public void alterarEvento(Long eventoId, Evento eventoAtualizado){

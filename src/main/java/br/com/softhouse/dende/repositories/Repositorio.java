@@ -1,6 +1,7 @@
 package br.com.softhouse.dende.repositories;
 
 import br.com.softhouse.dende.model.Evento;
+import br.com.softhouse.dende.model.EventoOrganizadorDTO;
 import br.com.softhouse.dende.model.Organizador;
 import br.com.softhouse.dende.model.Usuario;
 import br.com.softhouse.dende.model.enums.StatusEvento;
@@ -38,9 +39,9 @@ public class Repositorio {
         return organizadores.get(organizadorId);
     }
 
-    public List<Evento> listarEventosFiltrados(String organizadorId, StatusEvento status){
+    public List<EventoOrganizadorDTO> listarEventosOrganizador(String organizadorId, StatusEvento status){
 
-        List<Evento> eventosFiltrados = new ArrayList<Evento>();
+        List<EventoOrganizadorDTO> eventosOrganizador = new ArrayList<EventoOrganizadorDTO>();
 
         for(Evento evento : eventos.values()){
             boolean organizadorCorresponde = organizadorId == null ||
@@ -49,10 +50,18 @@ public class Repositorio {
                                     getEmail().equals(organizadorId));
             boolean statusCorresponde = status == null || evento.getStatus() == status;
             if (organizadorCorresponde && statusCorresponde){
-               eventosFiltrados.add(evento);
+               EventoOrganizadorDTO eventoOrganizador= new EventoOrganizadorDTO(
+                       evento.getNome(),
+                       evento.getDataHoraInicio(),
+                       evento.getDataHoraFim(),
+                       evento.getPrecoIngresso(),
+                       evento.getCapacidadeMaxima(),
+                       evento.getLocalAcesso()
+               );
+                eventosOrganizador.add(eventoOrganizador);
             }
         }
-        return eventosFiltrados;
+        return eventosOrganizador;
     }
 
     public Evento buscarEventoPorId(Long eventoId) {
