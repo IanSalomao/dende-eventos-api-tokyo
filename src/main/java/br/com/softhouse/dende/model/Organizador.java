@@ -1,9 +1,11 @@
 package br.com.softhouse.dende.model;
 
 import br.com.dende.softhouse.process.route.ResponseEntity;
+import br.com.softhouse.dende.model.enums.StatusEvento;
 import br.com.softhouse.dende.repositories.Repositorio;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 public class Organizador {
@@ -111,16 +113,25 @@ public class Organizador {
                 '}';
     }
 
-    public ResultadoValidacao cadastrarEvento(Evento novoEvento){
+    public void cadastrarEvento(Evento novoEvento){
 
-        ResultadoValidacao resultado = novoEvento.validarDatas();
-        if(!resultado.isValido()){
-            return resultado;
-        }
-        novoEvento.setOrganizador(this);
+        novoEvento.atribuirOrganizador(this);
+        novoEvento.validarInvariantes();
+
         Repositorio.getInstance().salvarEvento(novoEvento);
-
-        return new ResultadoValidacao(true, "Evento" + novoEvento.getNome() + "de ID" +
-                novoEvento.getId() + "cadastrado com sucesso" );
     }
+
+    public List<Evento> listarMeusEventos(){
+        return Repositorio.getInstance().listarEventosFiltrados(this.email, null);
+    }
+
+    public void alterarEvento(Long eventoId, Evento eventoAtualizado){
+        Evento evento = Repositorio.getInstance().buscarEventoPorId(eventoId);
+
+        if(evento == null){throw new IllegalArgumentException("Evento inexistente.");}
+        if(!evento.getOrganizador().equals(this)){throw new IllegalArgumentException("Apenas o organizador do evento pode alterá-lo");}
+
+        evento.alterarDados(eventoAtualizado);
+    }
+
 }

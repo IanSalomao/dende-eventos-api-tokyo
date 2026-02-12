@@ -3,7 +3,9 @@ package br.com.softhouse.dende.repositories;
 import br.com.softhouse.dende.model.Evento;
 import br.com.softhouse.dende.model.Organizador;
 import br.com.softhouse.dende.model.Usuario;
+import br.com.softhouse.dende.model.enums.StatusEvento;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +38,24 @@ public class Repositorio {
         return organizadores.get(organizadorId);
     }
 
-    public Map<Long, Evento> listarEventos() {
-        return eventos;
+    public List<Evento> listarEventosFiltrados(String organizadorId, StatusEvento status){
+
+        List<Evento> eventosFiltrados = new ArrayList<Evento>();
+
+        for(Evento evento : eventos.values()){
+            boolean organizadorCorresponde = organizadorId == null ||
+                    (evento.getOrganizador() != null &&
+                            evento.getOrganizador().
+                                    getEmail().equals(organizadorId));
+            boolean statusCorresponde = status == null || evento.getStatus() == status;
+            if (organizadorCorresponde && statusCorresponde){
+               eventosFiltrados.add(evento);
+            }
+        }
+        return eventosFiltrados;
+    }
+
+    public Evento buscarEventoPorId(Long eventoId) {
+        return eventos.get(eventoId);
     }
 }

@@ -17,19 +17,6 @@ public class EventoController {
     private final Repositorio repositorio;
 
     public EventoController() {
-
         this.repositorio = Repositorio.getInstance();
-    }
-
-    @PostMapping
-    public ResponseEntity<String> cadastrarEvento(@RequestBody Evento evento){
-        ResultadoValidacao resultado = evento.validarDatas();
-
-        if (!resultado.isValido()){
-            return ResponseEntity.status(400,resultado.getMensagem());
-        }
-
-        repositorio.salvarEvento(evento);
-        return ResponseEntity.ok("Evento cadastrado com sucesso. ID: " + evento.getId());
     }
 }

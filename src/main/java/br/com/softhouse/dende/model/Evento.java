@@ -56,6 +56,8 @@ public class Evento {
         this.permiteEstorno = permiteEstorno;
         this.taxaEstorno = taxaEstorno;
         this.eventoPrincipal = eventoPrincipal;
+
+        validarInvariantes();
     }
 
     public Evento() {
@@ -173,36 +175,86 @@ public class Evento {
         this.eventoPrincipal = eventoPrincipal;
     }
 
+    public Organizador getOrganizador() {
+        return organizador;
+    }
+
     public void atribuirId(final long id){
         if(this.id != 0){
             this.id = id;
         }
     }
 
-    public ResultadoValidacao validarDatas() {
-        if (this.dataHoraInicio == null || this.dataHoraFim == null){
-            return new ResultadoValidacao(false, "Datas e Horários não podem ser nulos.");
-        }
-        if (this.dataHoraFim.isBefore(this.dataHoraInicio)){
-            return new ResultadoValidacao(false, "Data final não pode ser antes da data inicial.");
-        }
-        if (this.dataHoraInicio.isAfter(this.dataHoraFim)){
-            return new ResultadoValidacao(false, "Data de início não pode ser posterior a data final.");
-        }
+    private void validarDatas(LocalDateTime dataHoraInicio, LocalDateTime dataHoraFim) {
 
-        if (Duration.between(this.dataHoraInicio, this.dataHoraFim).toMinutes() < 30){
-            return new ResultadoValidacao(false, "Evento não pode durar menos de 30 min.");
-        }
-        return new ResultadoValidacao(true, "Intervalo válido.");
+        if (dataHoraInicio == null || dataHoraFim == null){throw new IllegalArgumentException("Datas e Horários não podem ser nulos.");}
+
+        long duracaoMinutos = Duration.between(dataHoraInicio, dataHoraFim).toMinutes();
+        if (duracaoMinutos < 0){throw new IllegalArgumentException("Data e horário finais não podem ser antriores a data e horário iniciais.");}
+        if (duracaoMinutos < 30){throw new IllegalArgumentException("Evento não pode durar menos de 30 min.");}
     }
 
-    public Organizador getOrganizador() {
-        return organizador;
+    private void validarNome(String nome) {
+        if (nome == null || nome.trim().isEmpty()) {throw new IllegalArgumentException("Nome não pode ser vazio");}
     }
 
-    public void setOrganizador(Organizador organizador) {
-        this.organizador = organizador;
+    private void validarCapacidade(Integer capacidade) {
+        if (capacidade != null && capacidade <= 0) {throw new IllegalArgumentException("Capacidade não pode ser negativa ou " +
+                "igual a zero");}
     }
+
+    private void validarPreco(BigDecimal preco) {
+        if (preco != null && preco.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Preço não pode ser negativo");
+        }
+    }
+
+    public void validarInvariantes(){
+        validarNome(this.nome);
+        validarDatas(this.dataHoraInicio, this.dataHoraFim);
+        validarCapacidade(this.capacidadeMaxima);
+        validarPreco(this.precoIngresso);
+        validarPreco(this.taxaEstorno);
+    }
+
+    public void atribuirOrganizador(Organizador organizador) {
+        if (this.organizador == null) {throw new IllegalArgumentException("Esse evento já possui organizador");}
+    }
+
+    public void alterarDados(Evento novosDados){
+
+        if (this.status != StatusEvento.ATIVO){
+            throw new IllegalArgumentException("Apenas eventos ativos podem ser alterados");
+        }
+
+        LocalDateTime novoHorarioInicio = (novosDados.getDataHoraInicio() != null) ? novosDados.getDataHoraInicio() : this.dataHoraInicio;
+        LocalDateTime novoHorarioFim = (novosDados.getDataHoraFim() != null) ? novosDados.getDataHoraFim() : this.dataHoraFim;
+        Boolean novoPermiteEstorno = (novosDados.isPermiteEstorno() != null) ? novosDados.isPermiteEstorno() : this.permiteEstorno;
+        BigDecimal novaTaxaEstorno = (novosDados.getTaxaEstorno() != null) ? novosDados.getTaxaEstorno() : this.taxaEstorno;
+
+        validarDatas(novoHorarioInicio,novoHorarioFim);
+
+        if (!novoPermiteEstorno && novaTaxaEstorno != null) {
+            throw new IllegalArgumentException( "Não é permitido definir taxa de estorno para eventos que não permitem estorno.");
+        }
+
+        this.dataHoraInicio = novoHorarioInicio;
+        this.dataHoraFim = novoHorarioFim;
+
+        if (novosDados.getNome() != null) { this.nome = novosDados.getNome();}
+        if (novosDados.getCapacidadeMaxima() != null) {this.capacidadeMaxima = novosDados.getCapacidadeMaxima();}
+        if (novosDados.getDescricao() != null) {this.descricao = novosDados.getDescricao();}
+        if (novosDados.getEventoPrincipal() != null){this.eventoPrincipal = novosDados.getEventoPrincipal();}
+        if (novosDados.getLocalAcesso() != null){this.localAcesso = novosDados.getLocalAcesso();}
+        if (novosDados.getModalidade() != null){this.modalidade = novosDados.getModalidade();}
+        if (novosDados.getPaginaEvento() != null){this.paginaEvento = novosDados.getPaginaEvento();}
+        if (novosDados.getPrecoIngresso() != null){this.precoIngresso = novosDados.getPrecoIngresso();}
+        if (novosDados.getTipo() != null) {this.tipo = novosDados.getTipo();}
+
+        this.permiteEstorno = novoPermiteEstorno;
+        this.taxaEstorno = novaTaxaEstorno;
+    }
+
 }
 
 
