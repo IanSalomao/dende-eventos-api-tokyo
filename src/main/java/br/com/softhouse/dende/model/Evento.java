@@ -13,8 +13,8 @@ public class Evento {
     private String nome;
     private String descricao;
     private String paginaEvento;
-    private LocalDateTime dataHoraInicio;
-    private LocalDateTime dataHoraFim;
+    private LocalDateTime dataInicio;
+    private LocalDateTime dataFinal;
     private TipoEvento tipo;
     private ModalidadeEvento modalidade;
     private Integer capacidadeMaxima;
@@ -30,8 +30,8 @@ public class Evento {
             final String nome,
             final String descricao,
             final String paginaEvento,
-            final LocalDateTime dataHoraInicio,
-            final LocalDateTime dataHoraFim,
+            final LocalDateTime dataInicio,
+            final LocalDateTime dataFinal,
             final TipoEvento tipo,
             final ModalidadeEvento modalidade,
             final Integer capacidadeMaxima,
@@ -44,8 +44,8 @@ public class Evento {
         this.nome = nome;
         this.descricao = descricao;
         this.paginaEvento = paginaEvento;
-        this.dataHoraInicio = dataHoraInicio;
-        this.dataHoraFim = dataHoraFim;
+        this.dataInicio = dataInicio;
+        this.dataFinal = dataFinal;
         this.tipo = tipo;
         this.modalidade = modalidade;
         this.capacidadeMaxima = capacidadeMaxima;
@@ -78,12 +78,12 @@ public class Evento {
         return paginaEvento;
     }
 
-    public LocalDateTime getDataHoraInicio() {
-        return dataHoraInicio;
+    public LocalDateTime getDataInicio() {
+        return dataInicio;
     }
 
-    public LocalDateTime getDataHoraFim() {
-        return dataHoraFim;
+    public LocalDateTime getDataFinal() {
+        return dataFinal;
     }
 
     public TipoEvento getTipo() {
@@ -134,12 +134,12 @@ public class Evento {
         this.paginaEvento = paginaEvento;
     }
 
-    public void setDataHoraInicio(LocalDateTime dataHoraInicio) {
-        this.dataHoraInicio = dataHoraInicio;
+    public void setdataInicio(LocalDateTime dataInicio) {
+        this.dataInicio = dataInicio;
     }
 
-    public void setDataHoraFim(LocalDateTime dataHoraFim) {
-        this.dataHoraFim = dataHoraFim;
+    public void setdataFinal(LocalDateTime dataFinal) {
+        this.dataFinal = dataFinal;
     }
 
     public void setTipo(TipoEvento tipo) {
@@ -181,12 +181,12 @@ public class Evento {
     public void atribuirId(final long id){
         if(this.id == 0) this.id = id;
     }
-    private void validarDatas(LocalDateTime dataHoraInicio, LocalDateTime dataHoraFim) {
+    private void validarDatas(LocalDateTime dataInicio, LocalDateTime dataFinal) {
 
-        if (dataHoraInicio == null || dataHoraFim == null) throw new IllegalArgumentException("Datas e Horários não podem ser nulos.");
-        if (dataHoraInicio.isBefore(LocalDateTime.now()))throw new IllegalArgumentException("Data e horário iniciais não podem ser antetiores as atuais");
+        if (dataInicio == null || dataFinal == null) throw new IllegalArgumentException("Datas e Horários não podem ser nulos.");
+        if (dataInicio.isBefore(LocalDateTime.now()))throw new IllegalArgumentException("Data e horário iniciais não podem ser antetiores as atuais");
 
-        long duracaoMinutos = Duration.between(dataHoraInicio, dataHoraFim).toMinutes();
+        long duracaoMinutos = Duration.between(dataInicio, dataFinal).toMinutes();
         if (duracaoMinutos < 0) throw new IllegalArgumentException("Data e horário finais não podem ser antriores a data e horário iniciais.");
         if (duracaoMinutos < 30) throw new IllegalArgumentException("Evento não pode durar menos de 30 min.");
     }
@@ -207,7 +207,7 @@ public class Evento {
 
     public void validarInvariantes(){
         validarNome(this.nome);
-        validarDatas(this.dataHoraInicio, this.dataHoraFim);
+        validarDatas(this.dataInicio, this.dataFinal);
         validarCapacidade(this.capacidadeMaxima);
         validarPreco(this.precoIngresso);
         validarPreco(this.taxaEstorno);
@@ -225,8 +225,8 @@ public class Evento {
             throw new IllegalArgumentException("Apenas eventos ativos podem ser alterados. Status atual: " + this.status);
         }
 
-        LocalDateTime novoHorarioInicio = (novosDados.getDataHoraInicio() != null) ? novosDados.getDataHoraInicio() : this.dataHoraInicio;
-        LocalDateTime novoHorarioFim = (novosDados.getDataHoraFim() != null) ? novosDados.getDataHoraFim() : this.dataHoraFim;
+        LocalDateTime novoHorarioInicio = (novosDados.getDataInicio() != null) ? novosDados.getDataInicio() : this.dataInicio;
+        LocalDateTime novoHorarioFim = (novosDados.getDataFinal() != null) ? novosDados.getDataFinal() : this.dataFinal;
         Boolean novoPermiteEstorno = (novosDados.isPermiteEstorno() != null) ? novosDados.isPermiteEstorno() : this.permiteEstorno;
         BigDecimal novaTaxaEstorno = (novosDados.getTaxaEstorno() != null) ? novosDados.getTaxaEstorno() : this.taxaEstorno;
 
@@ -236,8 +236,8 @@ public class Evento {
             throw new IllegalArgumentException( "Não é permitido definir taxa de estorno para eventos que não permitem estorno.");
         }
 
-        this.dataHoraInicio = novoHorarioInicio;
-        this.dataHoraFim = novoHorarioFim;
+        this.dataInicio = novoHorarioInicio;
+        this.dataFinal = novoHorarioFim;
 
         if (novosDados.getNome() != null) { this.nome = novosDados.getNome();}
         if (novosDados.getCapacidadeMaxima() != null) {this.capacidadeMaxima = novosDados.getCapacidadeMaxima();}

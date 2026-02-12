@@ -52,8 +52,8 @@ public class Repositorio {
             if (organizadorCorresponde && statusCorresponde){
                EventoOrganizadorDTO eventoOrganizador= new EventoOrganizadorDTO(
                        evento.getNome(),
-                       evento.getDataHoraInicio(),
-                       evento.getDataHoraFim(),
+                       evento.getDataInicio(),
+                       evento.getDataFinal(),
                        evento.getPrecoIngresso(),
                        evento.getCapacidadeMaxima(),
                        evento.getLocalAcesso()
