@@ -1,30 +1,38 @@
 package br.com.softhouse.dende.model;
 
+import br.com.softhouse.dende.model.enums.Sexo;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
 public class Usuario {
-
+    private Long id;
     private String nome;
+    private String usuario;
     private LocalDate dataNascimento;
-    private String sexo;
+    private Sexo sexo;
     private String email;
+    private String senha;
+    private boolean ativo;
 
     public Usuario(
             final String nome,
+            final String usuario,
             final LocalDate dataNascimento,
-            final String sexo,
-            final String email
+            final Sexo sexo,
+            final String email,
+            final String senha
     ) {
         this.nome = nome;
+        this.usuario = usuario;
         this.dataNascimento = dataNascimento;
         this.sexo = sexo;
         this.email = email;
+        this.senha = senha;
+        this.ativo = true;
     }
 
-    public Usuario() {
-
-    }
+    public Usuario() {}
 
     public String getNome() {
         return nome;
@@ -42,11 +50,11 @@ public class Usuario {
         this.dataNascimento = dataNascimento;
     }
 
-    public String getSexo() {
+    public Sexo getSexo() {
         return sexo;
     }
 
-    public void setSexo(String sexo) {
+    public void setSexo(Sexo sexo) {
         this.sexo = sexo;
     }
 
@@ -57,6 +65,7 @@ public class Usuario {
     public void setEmail(String email) {
         this.email = email;
     }
+    public void setId(Long id) { this.id = id; }
 
     @Override
     public boolean equals(Object object) {
