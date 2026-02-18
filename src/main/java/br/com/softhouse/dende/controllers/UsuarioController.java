@@ -8,7 +8,12 @@ import br.com.dende.softhouse.annotations.request.RequestMapping;
 import br.com.dende.softhouse.annotations.request.PathVariable;
 import br.com.dende.softhouse.process.route.ResponseEntity;
 import br.com.softhouse.dende.model.Usuario;
+import br.com.softhouse.dende.model.dto.AlterarPerfilDTO;
+import br.com.softhouse.dende.model.enums.Sexo;
 import br.com.softhouse.dende.repositories.Repositorio;
+
+import java.time.LocalDate;
+import java.util.Map;
 
 @Controller
 @RequestMapping(path = "/usuarios")
@@ -26,7 +31,18 @@ public class UsuarioController {
     }
 
     @PutMapping(path = "/{usuarioId}")
-    public ResponseEntity<String> alterarUsuario(@PathVariable(parameter = "usuarioId") long usuarioId, @RequestBody Usuario usuario) {
-        return ResponseEntity.ok("Usuario " + usuario.getEmail() + " do usuarioId = " + usuarioId + " alterado com sucesso!");
+    public ResponseEntity<String> alterarPerfil(
+            @PathVariable(parameter = "usuarioId") Long usuarioId,
+            @RequestBody AlterarPerfilDTO dto) {
+        try {
+            Usuario usuario = repositorio.buscarUsuarioPorId(usuarioId);
+            usuario.alterarPerfil(dto.nome(), dto.dataNascimento(), dto.sexo(), dto.senha());
+            return ResponseEntity.ok("Perfil alterado com sucesso!");
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("não encontrado")) {
+                return ResponseEntity.status(404, e.getMessage());
+            }
+            return ResponseEntity.status(400, e.getMessage());
+        }
     }
 }

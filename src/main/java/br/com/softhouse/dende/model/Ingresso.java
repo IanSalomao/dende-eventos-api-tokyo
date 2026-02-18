@@ -54,8 +54,11 @@ public class Ingresso {
         return evento.calcularValorEstorno(this);
     }
 
-
-    // acho que esse metodo deveria estar na classe evento -> porque a regra de estorno depende das
-    // políticas do evento (taxa estorno)
-    public double calcularEstorno(){return 0.0; }
+    public void cancelarPorEvento() {
+        if (this.status != StatusIngresso.ATIVO) {
+            return;
+        }
+        this.status = StatusIngresso.CANCELADO_PELO_EVENTO;
+        evento.aumentarIngresso();
+    }
 }

@@ -1,6 +1,8 @@
 package br.com.softhouse.dende.model;
 
+import br.com.softhouse.dende.model.dto.CompraIngressoDTO;
 import br.com.softhouse.dende.model.enums.Sexo;
+import br.com.softhouse.dende.model.enums.StatusIngresso;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,8 +15,8 @@ public class UsuarioComum extends Usuario{
 
     private List<Ingresso> ingressos = new ArrayList<>();
 
-    public UsuarioComum(String nome, String usuario, LocalDate dataNascimento, Sexo sexo, String email, String senha){
-        super(nome, usuario, dataNascimento, sexo, email, senha);
+    public UsuarioComum(String nome,  LocalDate dataNascimento, Sexo sexo, String email, String senha){
+        super(nome,  dataNascimento, sexo, email, senha);
     }
 
     /**
@@ -23,7 +25,7 @@ public class UsuarioComum extends Usuario{
      * 2. Data de início do evento
      * 3. Nome do evento (ordem alfabética)
      */
-    public List<Ingresso> listarIngresso() {
+    public List<Ingresso> listarIngressos() {
         LocalDateTime agora = LocalDateTime.now();
 
         return this.ingressos.stream()
@@ -35,6 +37,7 @@ public class UsuarioComum extends Usuario{
                             boolean eventoAtivo = evento.isAtivo();
                             boolean eventoJaRealizado = evento.getDataInicio().isBefore(agora);
                             boolean ingressoCancelado = ingresso.isCancelado();
+                            boolean eventoCancelado = ingresso.getStatus() == StatusIngresso.CANCELADO_PELO_EVENTO;
 
                             // Se ingresso cancelado OU evento inativo OU já realizado -> vai pro final
                             if (ingressoCancelado || !eventoAtivo || eventoJaRealizado) {
@@ -51,20 +54,39 @@ public class UsuarioComum extends Usuario{
     }
 
 
-    public List<Ingresso> comprarIngresso(Evento evento){
+    public CompraIngressoDTO comprarIngresso(Evento evento) {
         List<Ingresso> ingressosGerados = new ArrayList<>();
 
-        if(evento.possuiEventoPrincipal()){
-            Evento eventoPrincipal = evento.getEventoPrincipal();
+        double valorTotal = 0.0;
 
-            Ingresso ingressoPrincipal = Ingresso.processarCompraIngresso(eventoPrincipal, eventoPrincipal.getValorIngresso(), this);
+        if (evento.getEventoPrincipal() != null) {
+
+            Evento principal = evento.getEventoPrincipal();
+
+            Ingresso ingressoPrincipal =
+                    Ingresso.processarCompraIngresso(principal,
+                            principal.getPrecoIngresso(),
+                            this);
+
             ingressosGerados.add(ingressoPrincipal);
             this.ingressos.add(ingressoPrincipal);
+            principal.adicionarIngresso(ingressoPrincipal);
+
+            valorTotal += principal.getPrecoIngresso();
+
         }
 
-        Ingresso ingressoEvento = Ingresso.processarCompraIngresso(evento, evento.getValorIngresso(), this);
+        Ingresso ingressoEvento =
+                Ingresso.processarCompraIngresso(evento,
+                        evento.getPrecoIngresso(),
+                        this);
+
         ingressosGerados.add(ingressoEvento);
+        evento.adicionarIngresso(ingressoEvento);
         this.ingressos.add(ingressoEvento);
-        return ingressosGerados;
+
+        valorTotal += evento.getPrecoIngresso();
+
+        return new CompraIngressoDTO(ingressosGerados, valorTotal);
     }
 }

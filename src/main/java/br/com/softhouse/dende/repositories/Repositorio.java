@@ -45,6 +45,14 @@ public class Repositorio {
         return usuario;
     }
 
+    public UsuarioComum buscarUsuarioComumPorId(Long id) {
+        Usuario usuario = buscarUsuarioPorId(id);
+        if (!(usuario instanceof UsuarioComum)) {
+            throw new IllegalArgumentException("Usuário informado não é um usuário comum.");
+        }
+        return (UsuarioComum) usuario;
+    }
+
     public Ingresso buscarIngressoPorId(long id) {
         Ingresso ingresso = ingressos.get(id);
         if (ingresso == null) {

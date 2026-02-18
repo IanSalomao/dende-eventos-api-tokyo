@@ -8,23 +8,22 @@ import java.util.Objects;
 public class Usuario {
     private Long id;
     private String nome;
-    private String usuario;
     private LocalDate dataNascimento;
     private Sexo sexo;
     private String email;
     private String senha;
     private boolean ativo;
 
+    public Usuario() {}
+
     public Usuario(
             final String nome,
-            final String usuario,
             final LocalDate dataNascimento,
             final Sexo sexo,
             final String email,
             final String senha
     ) {
         this.nome = nome;
-        this.usuario = usuario;
         this.dataNascimento = dataNascimento;
         this.sexo = sexo;
         this.email = email;
@@ -32,38 +31,28 @@ public class Usuario {
         this.ativo = true;
     }
 
-    public Usuario() {}
-
+    public Long getId() {return id;}
     public String getNome() {
         return nome;
     }
-
     public void setNome(String nome) {
         this.nome = nome;
     }
-
     public LocalDate getDataNascimento() {
         return dataNascimento;
+    }
+    public Sexo getSexo() {
+        return sexo;
+    }
+    public String getEmail() {
+        return email;
     }
 
     public void setDataNascimento(LocalDate dataNascimento) {
         this.dataNascimento = dataNascimento;
     }
-
-    public Sexo getSexo() {
-        return sexo;
-    }
-
     public void setSexo(Sexo sexo) {
         this.sexo = sexo;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
     public void setId(Long id) { this.id = id; }
 
