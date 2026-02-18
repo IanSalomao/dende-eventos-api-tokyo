@@ -8,14 +8,14 @@ public class EventoOrganizadorDTO {
     private LocalDateTime dataHoraInicio;
     private LocalDateTime dataHoraFim;
     private BigDecimal precoIngresso;
-    private int capacidadeMaxima;
+    private Integer capacidadeMaxima;
     private String localAcesso;
 
     public EventoOrganizadorDTO(String nome,
                                 LocalDateTime dataHoraInicio,
                                 LocalDateTime dataHoraFim,
                                 BigDecimal precoIngresso,
-                                int capacidadeMaxima,
+                                Integer capacidadeMaxima,
                                 String localAcesso) {
         this.nome = nome;
         this.dataHoraInicio = dataHoraInicio;
@@ -57,11 +57,11 @@ public class EventoOrganizadorDTO {
         this.precoIngresso = precoIngresso;
     }
 
-    public int getCapacidadeMaxima() {
+    public Integer getCapacidadeMaxima() {
         return capacidadeMaxima;
     }
 
-    public void setCapacidadeMaxima(int capacidadeMaxima) {
+    public void setCapacidadeMaxima(Integer capacidadeMaxima) {
         this.capacidadeMaxima = capacidadeMaxima;
     }
 

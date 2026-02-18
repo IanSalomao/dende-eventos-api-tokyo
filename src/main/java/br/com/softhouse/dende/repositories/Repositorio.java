@@ -61,6 +61,12 @@ public class Repositorio {
                 eventosOrganizador.add(eventoOrganizador);
             }
         }
+        eventosOrganizador.sort((a, b) -> {
+            int comparacaoData = a.getDataHoraInicio().compareTo(b.getDataHoraInicio());
+            if (comparacaoData != 0) return comparacaoData;
+            return a.getNome().compareTo(b.getNome());
+        });
+
         return eventosOrganizador;
     }
 

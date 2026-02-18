@@ -30,10 +30,10 @@ public class OrganizadorController {
             @RequestBody Evento evento
     ){
         Organizador organizador = repositorio.buscarOrganizador(organizadorId);
-        if(organizador == null){return ResponseEntity.status(404, "Organizador não encontrado");}
+        if(organizador == null){return ResponseEntity.status(404, "Organizador nao encontrado");}
         try {
             organizador.cadastrarEvento(evento);
-            return ResponseEntity.ok("Evento cadastrado com sucesso.");
+            return ResponseEntity.ok("Evento " + evento.getNome() + " de ID: " + evento.getId() + " cadastrado com sucesso.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(400, e.getMessage());
         }
@@ -47,11 +47,9 @@ public class OrganizadorController {
         Organizador organizadorInformado = repositorio.buscarOrganizador(organizadorId);
         Evento eventoInformado = repositorio.buscarEventoPorId(eventoId);
 
-        if(organizadorInformado == null){return ResponseEntity.status(404, "Organizador não encontrado.");}
-        if(eventoInformado == null){return ResponseEntity.status(404, "Evento não encontrado.");}
-        if(!Objects.equals(organizadorInformado.getEmail(), eventoInformado.getOrganizador().getEmail())) {
-            return ResponseEntity.status(403, "Este evento não pertence ao organizador informado");
-        }
+        if(organizadorInformado == null){return ResponseEntity.status(404, "Organizador nao encontrado.");}
+        if(eventoInformado == null){return ResponseEntity.status(404, "Evento nao encontrado.");}
+
         try{
             organizadorInformado.alterarEvento(eventoId, evento);
             return ResponseEntity.ok("Dados alterados com sucesso");
@@ -66,7 +64,7 @@ public class OrganizadorController {
     ){
         Organizador organizador = repositorio.buscarOrganizador(organizadorId);
         if(organizador == null){
-            return ResponseEntity.status(404, "Organizador não encontrado");
+            return ResponseEntity.status(404, "Organizador nao encontrado");
         }
 
         List<EventoOrganizadorDTO> meusEventos = organizador.listarMeusEventos();

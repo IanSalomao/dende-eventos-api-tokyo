@@ -114,10 +114,9 @@ public class Organizador {
     }
 
     public void cadastrarEvento(Evento novoEvento){
-
+        novoEvento.setStatus(StatusEvento.INATIVO);
         novoEvento.atribuirOrganizador(this);
         novoEvento.validarInvariantes();
-
         Repositorio.getInstance().salvarEvento(novoEvento);
     }
 
@@ -129,7 +128,7 @@ public class Organizador {
         Evento evento = Repositorio.getInstance().buscarEventoPorId(eventoId);
 
         if(evento == null){throw new IllegalArgumentException("Evento inexistente.");}
-        if(!evento.getOrganizador().equals(this)){throw new IllegalArgumentException("Apenas o organizador do evento pode alterá-lo");}
+        if(!Objects.equals(evento.getOrganizador(), this)){throw new IllegalArgumentException("Apenas o organizador do evento pode alterá-lo");}
 
         evento.alterarDados(eventoAtualizado);
     }

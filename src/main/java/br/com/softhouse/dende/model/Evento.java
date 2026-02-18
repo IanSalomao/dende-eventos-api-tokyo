@@ -55,7 +55,6 @@ public class Evento {
         this.taxaEstorno = taxaEstorno;
         this.eventoPrincipal = eventoPrincipal;
 
-        this.status = StatusEvento.INATIVO;
         validarInvariantes();
     }
 
@@ -134,11 +133,11 @@ public class Evento {
         this.paginaEvento = paginaEvento;
     }
 
-    public void setdataInicio(LocalDateTime dataInicio) {
+    public void setDataInicio(LocalDateTime dataInicio) {
         this.dataInicio = dataInicio;
     }
 
-    public void setdataFinal(LocalDateTime dataFinal) {
+    public void setDataFinal(LocalDateTime dataFinal) {
         this.dataFinal = dataFinal;
     }
 
@@ -172,6 +171,10 @@ public class Evento {
 
     public void setEventoPrincipal(Evento eventoPrincipal) {
         this.eventoPrincipal = eventoPrincipal;
+    }
+
+    public void setStatus(StatusEvento status) {
+        this.status = status;
     }
 
     public Organizador getOrganizador() {
