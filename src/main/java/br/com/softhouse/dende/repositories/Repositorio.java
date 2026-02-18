@@ -66,4 +66,10 @@ public class Repositorio {
     public Evento buscarEventoPorId(Long eventoId) {
         return eventos.get(eventoId);
     }
+
+    public Collection<Evento> buscarTodosEventos() {
+        return eventos.values();
+    }
 }
+
+
