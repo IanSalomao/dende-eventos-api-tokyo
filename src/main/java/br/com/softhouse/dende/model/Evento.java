@@ -227,6 +227,19 @@ public class Evento {
         this.organizador = organizador;
     }
 
+    public void ativarEvento(){
+        this.status = StatusEvento.ATIVO;
+    }
+
+    public void desativarEvento(){
+        this.status = StatusEvento.INATIVO;
+    }
+
+    public boolean temVagasDisponiveis(long totalIngressosVendidos) {
+        if (this.capacidadeMaxima == null) return true;
+        return totalIngressosVendidos < this.capacidadeMaxima;
+    }
+
     public void alterarDados(Evento novosDados){
 
         if (this.status != StatusEvento.ATIVO){
