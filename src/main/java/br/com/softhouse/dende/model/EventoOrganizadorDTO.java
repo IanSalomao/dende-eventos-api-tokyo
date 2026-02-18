@@ -5,21 +5,21 @@ import java.time.LocalDateTime;
 
 public class EventoOrganizadorDTO {
     private String nome;
-    private LocalDateTime dataHoraInicio;
-    private LocalDateTime dataHoraFim;
+    private LocalDateTime dataInicio;
+    private LocalDateTime dataFinal;
     private BigDecimal precoIngresso;
     private Integer capacidadeMaxima;
     private String localAcesso;
 
     public EventoOrganizadorDTO(String nome,
-                                LocalDateTime dataHoraInicio,
-                                LocalDateTime dataHoraFim,
+                                LocalDateTime dataInicio,
+                                LocalDateTime dataFinal,
                                 BigDecimal precoIngresso,
                                 Integer capacidadeMaxima,
                                 String localAcesso) {
         this.nome = nome;
-        this.dataHoraInicio = dataHoraInicio;
-        this.dataHoraFim = dataHoraFim;
+        this.dataInicio = dataInicio;
+        this.dataFinal = dataFinal;
         this.precoIngresso = precoIngresso;
         this.capacidadeMaxima = capacidadeMaxima;
         this.localAcesso = localAcesso;
@@ -33,20 +33,20 @@ public class EventoOrganizadorDTO {
         this.nome = nome;
     }
 
-    public LocalDateTime getDataHoraInicio() {
-        return dataHoraInicio;
+    public LocalDateTime getDataInicio() {
+        return dataInicio;
     }
 
-    public void setDataHoraInicio(LocalDateTime dataHoraInicio) {
-        this.dataHoraInicio = dataHoraInicio;
+    public void setDataInicio(LocalDateTime dataInicio) {
+        this.dataInicio = dataInicio;
     }
 
-    public LocalDateTime getDataHoraFim() {
-        return dataHoraFim;
+    public LocalDateTime getDataFinal() {
+        return dataFinal;
     }
 
-    public void setDataHoraFim(LocalDateTime dataHoraFim) {
-        this.dataHoraFim = dataHoraFim;
+    public void setDataFinal(LocalDateTime dataHoraFim) {
+        this.dataFinal = dataFinal;
     }
 
     public BigDecimal getPrecoIngresso() {

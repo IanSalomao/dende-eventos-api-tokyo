@@ -6,10 +6,7 @@ import br.com.softhouse.dende.model.Organizador;
 import br.com.softhouse.dende.model.Usuario;
 import br.com.softhouse.dende.model.enums.StatusEvento;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Repositorio {
 
@@ -61,11 +58,7 @@ public class Repositorio {
                 eventosOrganizador.add(eventoOrganizador);
             }
         }
-        eventosOrganizador.sort((a, b) -> {
-            int comparacaoData = a.getDataHoraInicio().compareTo(b.getDataHoraInicio());
-            if (comparacaoData != 0) return comparacaoData;
-            return a.getNome().compareTo(b.getNome());
-        });
+        eventosOrganizador.sort(Comparator.comparing(EventoOrganizadorDTO::getDataInicio));
 
         return eventosOrganizador;
     }
