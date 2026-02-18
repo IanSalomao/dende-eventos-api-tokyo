@@ -204,8 +204,12 @@ public class Evento {
 
     private void validarPreco(BigDecimal preco) {
         if (preco != null && preco.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Preço não pode ser negativo");
+            throw new IllegalArgumentException("Preço não pode ser negativo ou nulo.");
         }
+    }
+
+    private void validarLocalAcesso(String localAcesso) {
+        if (localAcesso == null || localAcesso.trim().isEmpty()) throw new IllegalArgumentException("Local de acesso não pode ser vazio");
     }
 
     public void validarInvariantes(){
@@ -214,6 +218,7 @@ public class Evento {
         validarCapacidade(this.capacidadeMaxima);
         validarPreco(this.precoIngresso);
         validarPreco(this.taxaEstorno);
+        validarLocalAcesso(this.localAcesso);
     }
 
     public void atribuirOrganizador(Organizador organizador) {
@@ -235,7 +240,7 @@ public class Evento {
 
         validarDatas(novoHorarioInicio,novoHorarioFim);
 
-        if (!novoPermiteEstorno && novaTaxaEstorno != null) {
+        if (novoPermiteEstorno != null && !novoPermiteEstorno && novaTaxaEstorno != null) {
             throw new IllegalArgumentException( "Não é permitido definir taxa de estorno para eventos que não permitem estorno.");
         }
 
@@ -251,11 +256,11 @@ public class Evento {
         if (novosDados.getPaginaEvento() != null){this.paginaEvento = novosDados.getPaginaEvento();}
         if (novosDados.getPrecoIngresso() != null){this.precoIngresso = novosDados.getPrecoIngresso();}
         if (novosDados.getTipo() != null) {this.tipo = novosDados.getTipo();}
+        if (novosDados.getPrecoIngresso() != null) {this.precoIngresso = novosDados.getPrecoIngresso();}
 
         this.permiteEstorno = novoPermiteEstorno;
         this.taxaEstorno = novaTaxaEstorno;
     }
-
 }
 
 
