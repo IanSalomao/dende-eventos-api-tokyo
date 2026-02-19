@@ -33,37 +33,37 @@ public class UsuarioController {
     }
 
 
-    @PutMapping(path = "/{email}/desativar") // collection usa PATCH para desativar/reativar.
-    public ResponseEntity<String> desativarUsuario(@PathVariable(parameter = "email") String email) {
-        Usuario usuario = repositorio.buscarUsuarioQualquer(email);
-        /* Bom verificar se ele já não tá inativo
-        if (!this.ativo) throw new IllegalArgumentException("Usuário já está inativo.");
-         */
-        if (usuario == null) return ResponseEntity.status(404, "Usuário não encontrado.");
-        try {
-            usuario.desativar();
-            return ResponseEntity.ok("Usuário desativado com sucesso.");
-        } catch (Exception e) {
-            return ResponseEntity.status(400, e.getMessage());
-        }
-    }
-
-
-    @PutMapping(path = "/{email}/reativar")// collection usa PATCH para desativar/reativar.
-    public ResponseEntity<String> reativarUsuario(
+    @PatchMapping(path = "/{email}/{status}")
+    public ResponseEntity<String> alterarStatus(
             @PathVariable(parameter = "email") String email,
-            @RequestBody ReativacaoRequest body) {
+            @PathVariable(parameter = "status") String status,
+            @RequestBody(required = false) ReativacaoRequest body) {
 
         Usuario usuario = repositorio.buscarUsuarioQualquer(email);
-        /* Bom verificar se usuário já não tá ativo
-        if (this.ativo) throw new IllegalArgumentException("Usuário já está ativo.");
-         */
-        if (usuario == null) return ResponseEntity.status(404, "Usuário não encontrado.");
+
+        if (usuario == null) {
+            return ResponseEntity.status(404, "Usuário não encontrado.");
+        }
 
         try {
-            String senha = (body != null) ? body.senha : null; //body.getSenha()
-            usuario.reativar(senha);
-            return ResponseEntity.ok("Usuário reativado com sucesso.");
+            if ("desativar".equalsIgnoreCase(status)) {
+                if (!usuario.isAtivo()) {
+                    throw new IllegalArgumentException("Usuário já está inativo.");
+                }
+                usuario.desativar();
+                return ResponseEntity.ok("Usuário desativado com sucesso.");
+            }
+            else if ("reativar".equalsIgnoreCase(status)) {
+                if (usuario.isAtivo()) {
+                    throw new IllegalArgumentException("Usuário já está ativo.");
+                }
+
+                String senha = (body != null) ? body.getSenha() : null;
+                usuario.reativar(senha);
+                return ResponseEntity.ok("Usuário reativado com sucesso.");
+            }
+
+            return ResponseEntity.status(400, "Ação inválida.");
         } catch (Exception e) {
             return ResponseEntity.status(400, e.getMessage());
         }

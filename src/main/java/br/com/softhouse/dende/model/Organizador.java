@@ -1,30 +1,31 @@
 package br.com.softhouse.dende.model;
 
-import br.com.softhouse.dende.repositories.Repositorio;
-
+import br.com.softhouse.dende.repositories.Repositorio; // Import adicionado conforme revisão
 import java.time.LocalDate;
 
 public class Organizador extends Usuario {
 
-    private Empresa empresa;
+    private String cnpj;
+    private String razaoSocial;
+    private String nomeFantasia;
 
-    public Organizador() {
-        super();
-    }
-
-    public Organizador(String nome, LocalDate dataNascimento, String sexo, String email, String senha, Empresa empresa) {
+    public Organizador(String nome, LocalDate dataNascimento, String sexo, String email, String senha,
+                       String cnpj, String razaoSocial, String nomeFantasia) {
         super(nome, dataNascimento, sexo, email, senha);
-        this.empresa = empresa;
+        this.cnpj = cnpj;
+        this.razaoSocial = razaoSocial;
+        this.nomeFantasia = nomeFantasia;
     }
-
-    public Empresa getEmpresa() { return empresa; }
-    public void setEmpresa(Empresa empresa) { this.empresa = empresa; }
 
     @Override
     public void desativar() {
-        if (!Repositorio.getInstance().listarEventosOrganizador(this.email, StatusEvento.ATIVO).isEmpty()){ //Esse metodo foi feito por mim (Bia) no repo
+        if (!Repositorio.getInstance().listarEventosOrganizador(this.getEmail(), StatusEvento.ATIVO).isEmpty()) {
             throw new IllegalArgumentException("Não é possível desativar usuários organizadores com eventos ativos.");
         }
         super.desativar();
     }
+
+    public String getCnpj() { return cnpj; }
+    public String getRazaoSocial() { return razaoSocial; }
+    public String getNomeFantasia() { return nomeFantasia; }
 }
