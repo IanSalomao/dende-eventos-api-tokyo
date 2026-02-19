@@ -58,7 +58,15 @@ public class Repositorio {
                 eventosOrganizador.add(eventoOrganizador);
             }
         }
-        eventosOrganizador.sort(Comparator.comparing(EventoOrganizadorDTO::getDataInicio));
+
+        eventosOrganizador.sort(
+                Comparator
+                        .comparing(EventoOrganizadorDTO::getDataInicio)
+                        .thenComparing(
+                                EventoOrganizadorDTO::getNome,
+                                String.CASE_INSENSITIVE_ORDER
+                        )
+        );
 
         return eventosOrganizador;
     }

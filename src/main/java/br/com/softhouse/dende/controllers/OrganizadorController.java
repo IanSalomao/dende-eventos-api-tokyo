@@ -6,12 +6,9 @@ import br.com.dende.softhouse.process.route.ResponseEntity;
 import br.com.softhouse.dende.model.Evento;
 import br.com.softhouse.dende.model.EventoOrganizadorDTO;
 import br.com.softhouse.dende.model.Organizador;
-import br.com.softhouse.dende.model.Usuario;
-import br.com.softhouse.dende.model.enums.StatusEvento;
 import br.com.softhouse.dende.repositories.Repositorio;
 
 import java.util.List;
-import java.util.Objects;
 
 
 @Controller
