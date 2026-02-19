@@ -49,39 +49,20 @@ public class Repositorio {
         return organizadores.get(organizadorId);
     }
 
-    public List<EventoOrganizadorDTO> listarEventosOrganizador(String organizadorId, StatusEvento status){
+    public List<Evento>listarEventos(){
 
-        List<EventoOrganizadorDTO> eventosOrganizador = new ArrayList<EventoOrganizadorDTO>();
+        List<Evento> listaEventos = new ArrayList<>(eventos.values());
 
-        for(Evento evento : eventos.values()){
-            boolean organizadorCorresponde = organizadorId == null ||
-                    (evento.getOrganizador() != null &&
-                            evento.getOrganizador().
-                                    getEmail().equals(organizadorId));
-            boolean statusCorresponde = status == null || evento.getStatus() == status;
-            if (organizadorCorresponde && statusCorresponde){
-                EventoOrganizadorDTO eventoOrganizador= new EventoOrganizadorDTO(
-                        evento.getNome(),
-                        evento.getDataInicio(),
-                        evento.getDataFinal(),
-                        evento.getPrecoIngresso(),
-                        evento.getCapacidadeMaxima(),
-                        evento.getLocalAcesso()
-                );
-                eventosOrganizador.add(eventoOrganizador);
-            }
-        }
-
-        eventosOrganizador.sort(
+        listaEventos.sort(
                 Comparator
-                        .comparing(EventoOrganizadorDTO::getDataInicio)
+                        .comparing(Evento::getDataInicio)
                         .thenComparing(
-                                EventoOrganizadorDTO::getNome,
+                                Evento::getNome,
                                 String.CASE_INSENSITIVE_ORDER
                         )
         );
 
-        return eventosOrganizador;
+        return listaEventos;
     }
 
     public Evento buscarEventoPorId(Long eventoId) {

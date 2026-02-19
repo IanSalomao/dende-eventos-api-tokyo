@@ -74,7 +74,7 @@ public class OrganizadorController {
             return ResponseEntity.status(404, "Organizador nao encontrado");
         }
 
-        List<EventoOrganizadorDTO> meusEventos = organizador.listarMeusEventos();
+        List<EventoOrganizadorDTO> meusEventos = organizador.listarMeusEventos(null);
 
         return ResponseEntity.ok(meusEventos);
     }
