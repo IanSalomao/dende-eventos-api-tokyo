@@ -21,6 +21,16 @@ public class OrganizadorController {
         this.repositorio = Repositorio.getInstance();
     }
 
+    @PostMapping
+    public ResponseEntity<String> cadastrarOrganizador(@RequestBody Organizador organizador) {
+        try {
+            repositorio.salvarOrganizador(organizador);
+            return ResponseEntity.ok("Organizador " + organizador.getNome() + " cadastrado com sucesso!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400, e.getMessage());
+        }
+    }
+
     @PostMapping(path = "/{organizadorId}/eventos")
     public ResponseEntity<String> cadastrarEvento(
             @PathVariable(parameter = "organizadorId") String organizadorId,
@@ -68,5 +78,4 @@ public class OrganizadorController {
 
         return ResponseEntity.ok(meusEventos);
     }
-
 }

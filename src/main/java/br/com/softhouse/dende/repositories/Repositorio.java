@@ -25,6 +25,19 @@ public class Repositorio {
         return instance;
     }
 
+    public void salvarOrganizador(Organizador organizador) {
+        if (usuariosComum.containsKey(organizador.getEmail()) || organizadores.containsKey(organizador.getEmail())) {
+            throw new IllegalArgumentException("E-mail já cadastrado na plataforma.");
+        }
+        organizadores.put(organizador.getEmail(), organizador);
+    }
+
+    public Usuario buscarUsuarioQualquer(String email) {
+        if (usuariosComum.containsKey(email)) return usuariosComum.get(email);
+        if (organizadores.containsKey(email)) return organizadores.get(email);
+        return null;
+    }
+
     static long proximoIdEvento = 0;
     public void salvarEvento(Evento evento){
         evento.atribuirId(proximoIdEvento);
@@ -47,14 +60,14 @@ public class Repositorio {
                                     getEmail().equals(organizadorId));
             boolean statusCorresponde = status == null || evento.getStatus() == status;
             if (organizadorCorresponde && statusCorresponde){
-               EventoOrganizadorDTO eventoOrganizador= new EventoOrganizadorDTO(
-                       evento.getNome(),
-                       evento.getDataInicio(),
-                       evento.getDataFinal(),
-                       evento.getPrecoIngresso(),
-                       evento.getCapacidadeMaxima(),
-                       evento.getLocalAcesso()
-               );
+                EventoOrganizadorDTO eventoOrganizador= new EventoOrganizadorDTO(
+                        evento.getNome(),
+                        evento.getDataInicio(),
+                        evento.getDataFinal(),
+                        evento.getPrecoIngresso(),
+                        evento.getCapacidadeMaxima(),
+                        evento.getLocalAcesso()
+                );
                 eventosOrganizador.add(eventoOrganizador);
             }
         }
