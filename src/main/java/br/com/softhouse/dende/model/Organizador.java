@@ -1,5 +1,7 @@
 package br.com.softhouse.dende.model;
 
+import br.com.softhouse.dende.repositories.Repositorio;
+
 import java.time.LocalDate;
 
 public class Organizador extends Usuario {
@@ -20,7 +22,9 @@ public class Organizador extends Usuario {
 
     @Override
     public void desativar() {
-
+        if (!Repositorio.getInstance().listarEventosOrganizador(this.email, StatusEvento.ATIVO).isEmpty()){ //Esse metodo foi feito por mim (Bia) no repo
+            throw new IllegalArgumentException("Não é possível desativar usuários organizadores com eventos ativos.");
+        }
         super.desativar();
     }
 }

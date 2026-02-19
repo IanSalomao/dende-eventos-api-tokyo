@@ -32,7 +32,6 @@ public class Repositorio {
         return organizadores.get(email);
     }
 
-
     public Usuario buscarUsuarioQualquer(String email) {
         if (usuariosComum.containsKey(email)) return usuariosComum.get(email);
         if (organizadores.containsKey(email)) return organizadores.get(email);

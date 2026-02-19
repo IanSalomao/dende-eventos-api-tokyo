@@ -9,7 +9,7 @@ import br.com.softhouse.dende.model.Organizador;
 import br.com.softhouse.dende.repositories.Repositorio;
 
 @Controller
-@RequestMapping(path = "/usuarios")
+@RequestMapping(path = "/usuarios")// Na collection de lucas, essa rota aqui é /organizadores
 public class OrganizadorController {
 
     private final Repositorio repositorio;
@@ -18,7 +18,7 @@ public class OrganizadorController {
         this.repositorio = Repositorio.getInstance();
     }
 
-    @PostMapping(path = "/organizador")
+    @PostMapping(path = "/organizador")// Na collection de lucas, essa rota aqui é /organizadores
     public ResponseEntity<String> cadastrarOrganizador(@RequestBody Organizador organizador) {
         try {
             repositorio.salvarOrganizador(organizador);

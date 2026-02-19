@@ -33,11 +33,13 @@ public class UsuarioController {
     }
 
 
-    @PutMapping(path = "/{email}/desativar")
+    @PutMapping(path = "/{email}/desativar") // collection usa PATCH para desativar/reativar.
     public ResponseEntity<String> desativarUsuario(@PathVariable(parameter = "email") String email) {
         Usuario usuario = repositorio.buscarUsuarioQualquer(email);
+        /* Bom verificar se ele já não tá inativo
+        if (!this.ativo) throw new IllegalArgumentException("Usuário já está inativo.");
+         */
         if (usuario == null) return ResponseEntity.status(404, "Usuário não encontrado.");
-
         try {
             usuario.desativar();
             return ResponseEntity.ok("Usuário desativado com sucesso.");
@@ -47,16 +49,19 @@ public class UsuarioController {
     }
 
 
-    @PutMapping(path = "/{email}/reativar")
+    @PutMapping(path = "/{email}/reativar")// collection usa PATCH para desativar/reativar.
     public ResponseEntity<String> reativarUsuario(
             @PathVariable(parameter = "email") String email,
             @RequestBody ReativacaoRequest body) {
 
         Usuario usuario = repositorio.buscarUsuarioQualquer(email);
+        /* Bom verificar se usuário já não tá ativo
+        if (this.ativo) throw new IllegalArgumentException("Usuário já está ativo.");
+         */
         if (usuario == null) return ResponseEntity.status(404, "Usuário não encontrado.");
 
         try {
-            String senha = (body != null) ? body.senha : null;
+            String senha = (body != null) ? body.senha : null; //body.getSenha()
             usuario.reativar(senha);
             return ResponseEntity.ok("Usuário reativado com sucesso.");
         } catch (Exception e) {
