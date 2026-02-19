@@ -2,49 +2,40 @@ package br.com.softhouse.dende.controllers;
 
 import br.com.dende.softhouse.annotations.Controller;
 import br.com.dende.softhouse.annotations.request.GetMapping;
-import br.com.dende.softhouse.annotations.request.PostMapping;
 import br.com.dende.softhouse.annotations.request.PutMapping;
 import br.com.dende.softhouse.annotations.request.RequestBody;
 import br.com.dende.softhouse.annotations.request.RequestMapping;
 import br.com.dende.softhouse.annotations.request.PathVariable;
 import br.com.dende.softhouse.process.route.ResponseEntity;
-import br.com.softhouse.dende.model.UsuarioComum;
+import br.com.softhouse.dende.model.UsuarioOrganizador;
 import br.com.softhouse.dende.repositories.Repositorio;
 
 @Controller
-@RequestMapping(path = "/usuarios")
-public class UsuarioController {
+@RequestMapping(path = "/organizadores")
+public class OrganizadorController {
 
     private final Repositorio repositorio;
 
-    public UsuarioController() {
+    public OrganizadorController() {
         this.repositorio = Repositorio.getInstance();
     }
 
-    @PostMapping
-    public ResponseEntity<String> cadastrarUsuario(@RequestBody UsuarioComum usuario) {
-        if (repositorio.existeUsuario(usuario.getEmail())) {
-            return ResponseEntity.status(400, "Ja existe um usuario cadastrado com o e-mail " + usuario.getEmail());
-        }
-        repositorio.salvarUsuario(usuario);
-        return ResponseEntity.ok("Usuario " + usuario.getEmail() + " registrado com sucesso!");
-    }
-
     @PutMapping(path = "/{email}")
-    public ResponseEntity<String> alterarUsuario(
+    public ResponseEntity<String> alterarOrganizador(
             @PathVariable(parameter = "email") String email,
-            @RequestBody UsuarioComum dadosNovos) {
+            @RequestBody UsuarioOrganizador dadosNovos) {
         if (!repositorio.existeUsuario(email)) {
-            return ResponseEntity.status(404, "Usuario com e-mail " + email + " nao encontrado.");
+            return ResponseEntity.status(404, "Organizador com e-mail " + email + " nao encontrado.");
         }
         repositorio.atualizarUsuario(email, dadosNovos);
-        return ResponseEntity.ok("Usuario " + email + " alterado com sucesso!");
+        return ResponseEntity.ok("Organizador " + email + " alterado com sucesso!");
     }
 
     @GetMapping(path = "/{email}")
     public ResponseEntity<String> visualizarPerfil(@PathVariable(parameter = "email") String email) {
         return repositorio.buscarUsuario(email)
+                .filter(usuario -> usuario instanceof UsuarioOrganizador)
                 .map(usuario -> ResponseEntity.ok(usuario.visualizarPerfil()))
-                .orElseGet(() -> ResponseEntity.status(404, "Usuario com e-mail " + email + " nao encontrado."));
+                .orElseGet(() -> ResponseEntity.status(404,"Organizador com e-mail " + email + " nao encontrado."));
     }
 }
