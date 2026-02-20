@@ -40,7 +40,7 @@ public class UsuarioComum extends Usuario{
                             boolean eventoCancelado = ingresso.getStatus() == StatusIngresso.CANCELADO_PELO_EVENTO;
 
                             // Se ingresso cancelado OU evento inativo OU já realizado -> vai pro final
-                            if (ingressoCancelado || !eventoAtivo || eventoJaRealizado) {
+                            if (ingressoCancelado || !eventoAtivo || eventoJaRealizado ||eventoCancelado) {
                                 return 1;
                             }
                             // Caso contrário, vai pro início

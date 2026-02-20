@@ -21,9 +21,6 @@ public class UsuarioComumController {
     }
 
 
-
-
-
     @GetMapping(path = "/{usuarioId}/ingressos")
     public ResponseEntity<?> listarIngressos(@PathVariable(parameter = "usuarioId") Long usuarioId) {
         try {
