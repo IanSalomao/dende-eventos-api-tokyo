@@ -1,11 +1,13 @@
 package br.com.softhouse.dende.model;
 import br.com.softhouse.dende.model.enums.StatusIngresso;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class Ingresso {
 
     private Long id;
-    private double valorPago;
+    private BigDecimal valorPago;
     private StatusIngresso status;
     private LocalDateTime dataCompra;
     private Evento evento;
@@ -13,7 +15,7 @@ public class Ingresso {
 
     private Ingresso(){}
 
-    private Ingresso(Evento evento, double valorPago, UsuarioComum usuario){
+    private Ingresso(Evento evento, BigDecimal valorPago, UsuarioComum usuario){
         this.evento = evento;
         this.valorPago = valorPago;
         this.usuario = usuario;
@@ -23,7 +25,7 @@ public class Ingresso {
 
     public Evento getEvento() { return evento; }
     public UsuarioComum getUsuario() { return usuario; }
-    public double getValorPago() { return valorPago; }
+    public BigDecimal getValorPago() { return valorPago; }
     public StatusIngresso getStatus() { return status; }
     public Long getId() {return id;}
     public void setId(Long id) { this.id = id; }
