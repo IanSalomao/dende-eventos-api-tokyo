@@ -86,7 +86,10 @@ public class Repositorio {
 
     public UsuarioOrganizador buscarOrganizadorPorEmail(String email) {
         Usuario usuario = buscarUsuarioPorEmail(email);
-        throw new IllegalArgumentException("Usuário informado não é um organizador.");
+        if (!(usuario instanceof UsuarioOrganizador)) {
+            throw new IllegalArgumentException("Usuário informado não é um organizador.");
+        }
+        return (UsuarioOrganizador) usuario;
     }
 
     /** ===================
