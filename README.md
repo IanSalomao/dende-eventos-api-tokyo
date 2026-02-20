@@ -64,7 +64,7 @@ A API foi construída com base nas seguintes **User Stories**:
 
 ### 👤 Usuários
 - Cadastro de usuário comum
-- Cadastro de usuário organizador
+- Cadastro de usuário usuarioOrganizador
 - Alteração de perfil
 - Visualização de perfil
 - Desativação de usuário
@@ -75,7 +75,7 @@ A API foi construída com base nas seguintes **User Stories**:
 - Alteração de evento
 - Ativação de evento
 - Desativação de evento
-- Listagem de eventos do organizador
+- Listagem de eventos do usuarioOrganizador
 - Feed de eventos ativos
 
 ### 🎟️ Ingressos
@@ -102,10 +102,10 @@ A API foi construída com base nas seguintes **User Stories**:
 
 | Método | Endpoint | Descrição |
 |------|---------|----------|
-| POST | `/organizadores` | Cadastro de usuário organizador |
-| PUT | `/organizadores/{organizadorId}` | Alterar dados do organizador |
-| GET | `/organizadores/{organizadorId}` | Visualizar perfil do organizador |
-| PATCH | `/organizadores/{organizadorId}/{status}` | Ativar ou desativar organizador |
+| POST | `/organizadores` | Cadastro de usuário usuarioOrganizador |
+| PUT | `/organizadores/{organizadorId}` | Alterar dados do usuarioOrganizador |
+| GET | `/organizadores/{organizadorId}` | Visualizar perfil do usuarioOrganizador |
+| PATCH | `/organizadores/{organizadorId}/{status}` | Ativar ou desativar usuarioOrganizador |
 
 ---
 
@@ -116,7 +116,7 @@ A API foi construída com base nas seguintes **User Stories**:
 | POST | `/organizadores/{organizadorId}/eventos` | Cadastrar evento |
 | PUT | `/organizadores/{organizadorId}/eventos/{eventoId}` | Alterar evento |
 | PATCH | `/organizadores/{organizadorId}/eventos/{status}` | Ativar ou desativar evento |
-| GET | `/organizadores/{organizadorId}/eventos` | Listar eventos do organizador |
+| GET | `/organizadores/{organizadorId}/eventos` | Listar eventos do usuarioOrganizador |
 | GET | `/eventos` | Feed de eventos ativos |
 
 ---

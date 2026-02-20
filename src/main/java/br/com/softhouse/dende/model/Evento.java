@@ -24,7 +24,7 @@ public class Evento {
     private Boolean permiteEstorno;
     private BigDecimal taxaEstorno;
     private Evento eventoPrincipal;
-    private Organizador organizador;
+    private UsuarioOrganizador usuarioOrganizador;
 
     public Evento(
             final String nome,
@@ -177,8 +177,8 @@ public class Evento {
         this.status = status;
     }
 
-    public Organizador getOrganizador() {
-        return organizador;
+    public UsuarioOrganizador getOrganizador() {
+        return usuarioOrganizador;
     }
 
     public void atribuirId(final long id){
@@ -221,10 +221,10 @@ public class Evento {
         validarLocalAcesso(this.localAcesso);
     }
 
-    public void atribuirOrganizador(Organizador organizador) {
-        if (this.organizador != null) throw new IllegalArgumentException("Esse evento já possui organizador");
+    public void atribuirOrganizador(UsuarioOrganizador usuarioOrganizador) {
+        if (this.usuarioOrganizador != null) throw new IllegalArgumentException("Esse evento já possui organizador");
 
-        this.organizador = organizador;
+        this.usuarioOrganizador = usuarioOrganizador;
     }
 
     public void alterarDados(Evento novosDados){

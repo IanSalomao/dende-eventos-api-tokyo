@@ -1,68 +1,53 @@
 package br.com.softhouse.dende.repositories;
 
 import br.com.softhouse.dende.model.Evento;
-import br.com.softhouse.dende.model.EventoOrganizadorDTO;
-import br.com.softhouse.dende.model.Organizador;
 import br.com.softhouse.dende.model.Usuario;
-import br.com.softhouse.dende.model.enums.StatusEvento;
+import br.com.softhouse.dende.model.UsuarioOrganizador;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Repositorio {
 
-    private static Repositorio instance = new Repositorio();
-    private final Map<String, Usuario> usuariosComum;
-    private final Map<String, Organizador> organizadores;
-    private final Map<Long, Evento> eventos;
+    private static final Repositorio instance = new Repositorio();
+    private final Map<String, Usuario> usuarios = new HashMap<>();
+    private final Map<Long, Evento> eventos = new HashMap<>();
+    private final AtomicLong eventoIdSequence = new AtomicLong(1);
 
-    private Repositorio() {
-        this.usuariosComum = new HashMap<>();
-        this.organizadores = new HashMap<>();
-        this.eventos = new HashMap<>();
-    }
+    private Repositorio() {}
 
     public static Repositorio getInstance() {
         return instance;
     }
 
-    public void salvarOrganizador(Organizador organizador) {
-        if (usuariosComum.containsKey(organizador.getEmail()) || organizadores.containsKey(organizador.getEmail())) {
-            throw new IllegalArgumentException("E-mail já cadastrado na plataforma.");
-        }
-        organizadores.put(organizador.getEmail(), organizador);
+    public boolean existeUsuario(String email) {
+        return usuarios.containsKey(email);
     }
 
-    public Usuario buscarUsuarioQualquer(String email) {
-        if (usuariosComum.containsKey(email)) return usuariosComum.get(email);
-        if (organizadores.containsKey(email)) return organizadores.get(email);
+    public void salvarUsuario(Usuario usuario) {
+        if (existeUsuario(usuario.getEmail())) {
+            throw new IllegalArgumentException("Ja existe um usuario com o e-mail: " + usuario.getEmail());
+        }
+        usuarios.put(usuario.getEmail(), usuario);
+    }
+
+    public Usuario buscarUsuario(String email) {
+        return usuarios.get(email);
+    }
+
+    public UsuarioOrganizador buscarOrganizador(String email) {
+        Usuario usuario = usuarios.get(email);
+        if (usuario instanceof UsuarioOrganizador organizador) {
+            return organizador;
+        }
         return null;
     }
 
-    static long proximoIdEvento = 0;
-    public void salvarEvento(Evento evento){
-        evento.atribuirId(proximoIdEvento);
-        eventos.put(proximoIdEvento, evento);
-        proximoIdEvento ++;
-    }
-
-    public Organizador buscarOrganizador(String organizadorId){
-        return organizadores.get(organizadorId);
-    }
-
-    public List<Evento>listarEventos(){
-
-        List<Evento> listaEventos = new ArrayList<>(eventos.values());
-
-        listaEventos.sort(
-                Comparator
-                        .comparing(Evento::getDataInicio)
-                        .thenComparing(
-                                Evento::getNome,
-                                String.CASE_INSENSITIVE_ORDER
-                        )
-        );
-
-        return listaEventos;
+    public void salvarEvento(Evento evento) {
+        long id = eventoIdSequence.getAndIncrement();
+        evento.atribuirId(id);
+        eventos.put(id, evento);
     }
 
     public Evento buscarEventoPorId(Long eventoId) {
