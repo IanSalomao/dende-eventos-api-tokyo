@@ -2,7 +2,10 @@ package br.com.softhouse.dende.repositories;
 
 import br.com.softhouse.dende.model.*;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Repositorio {
@@ -67,5 +70,19 @@ public class Repositorio {
             throw new IllegalArgumentException("Evento não encontrado.");
         }
         return evento;
+    }
+
+    public List<Evento> feedEventos(){
+        LocalDateTime agora = LocalDateTime.now();
+
+        return eventos.values()
+                .stream()
+                .filter(Evento::estaAtivo)
+                .filter(e -> e.getDataHoraFim().isAfter(agora))
+                .filter(e -> e.calcularVagasDisponiveis() > 0)
+                .sorted(Comparator
+                        .comparing(Evento::getDataHoraInicio)
+                        .thenComparing(Evento::getNome))
+                .toList();
     }
 }
