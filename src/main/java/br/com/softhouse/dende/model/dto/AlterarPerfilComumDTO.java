@@ -4,7 +4,7 @@ import br.com.softhouse.dende.model.enums.Sexo;
 
 import java.time.LocalDate;
 
-public record AlterarPerfilDTO(
+public record AlterarPerfilComumDTO(
         String nome,
         LocalDate dataNascimento,
         Sexo sexo,

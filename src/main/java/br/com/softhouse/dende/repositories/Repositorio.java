@@ -7,44 +7,65 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Repositorio {
 
-    private static Repositorio instance = new Repositorio();
-    private final Map<Long, Ingresso> ingressos;
-    private final Map<String, Usuario> usuarios;
-    private final Map<Long, Evento> eventos;
+    private static final Repositorio instance = new Repositorio();
+    private final Map<String, Usuario> usuarios = new HashMap<>();
+    private final Map<Long, Ingresso> ingressos = new HashMap<>();
+    private final Map<Long, Evento> eventos = new HashMap<>();
 
+
+    private final AtomicLong eventoIdSequence = new AtomicLong(1);
     private long sequenciaIngressoId = 1L;
     private long sequenciaEventoId = 1L;
 
-    private Repositorio() {
-        this.ingressos = new HashMap<>();
-        this.usuarios= new HashMap<>();
-        this.eventos = new HashMap<>();
-    }
+    private Repositorio() {}
 
     public static Repositorio getInstance() {
         return instance;
     }
 
-    public void salvarIngresso(Ingresso ingresso){
-        ingresso.setId(sequenciaIngressoId);
-        ingressos.put(sequenciaIngressoId, ingresso);
-        sequenciaIngressoId++;
+
+    /** ===================
+     *        USUARIO
+     *  ===================
+     */
+
+    public boolean existeUsuario(String email) {
+        return usuarios.containsKey(email);
     }
 
-    public void salvarUsuario(Usuario usuario) {
-        if (usuarios.containsKey(usuario.getEmail())) {
-            throw new IllegalArgumentException("Já existe usuário com esse e-mail.");
+    public void salvarUsuario(UsuarioComum usuario) {
+        if (existeUsuario(usuario.getEmail())) {
+            throw new IllegalArgumentException("Ja existe um usuario com o e-mail: " + usuario.getEmail());
         }
         usuarios.put(usuario.getEmail(), usuario);
     }
 
-    public void salvarEvento(Evento evento) {
-        evento.atribuirId(sequenciaEventoId);
-        eventos.put(sequenciaEventoId, evento);
-        sequenciaEventoId++;
+    public void salvarUsuario(UsuarioOrganizador usuario) {
+        if (existeUsuario(usuario.getEmail())) {
+            throw new IllegalArgumentException("Ja existe um usuario com o e-mail: " + usuario.getEmail());
+        }
+        usuarios.put(usuario.getEmail(), usuario);
+    }
+
+
+    public UsuarioComum buscarUsuarioComum(String email) {
+        Usuario usuario = usuarios.get(email);
+        if (usuario instanceof UsuarioComum usuarioComum) {
+            return usuarioComum;
+        }
+        return null;
+    }
+
+    public UsuarioOrganizador buscarOrganizador(String email) {
+        Usuario usuario = usuarios.get(email);
+        if (usuario instanceof UsuarioOrganizador organizador) {
+            return organizador;
+        }
+        return null;
     }
 
     public Usuario buscarUsuarioPorEmail(String email) {
@@ -63,17 +84,24 @@ public class Repositorio {
         return (UsuarioComum) usuario;
     }
 
-    public Organizador buscarOrganizadorPorEmail(String email) {
+    public UsuarioOrganizador buscarOrganizadorPorEmail(String email) {
         Usuario usuario = buscarUsuarioPorEmail(email);
         throw new IllegalArgumentException("Usuário informado não é um organizador.");
     }
 
-    public Ingresso buscarIngressoPorId(long id) {
-        Ingresso ingresso = ingressos.get(id);
-        if (ingresso == null) {
-            throw new IllegalArgumentException("Ingresso não encontrado.");
-        }
-        return ingresso;
+    /** ===================
+     *        EVENTO
+     *  ===================
+     */
+
+    public void salvarEvento(Evento evento) {
+        long id = eventoIdSequence.getAndIncrement();
+        evento.atribuirId(id);
+        eventos.put(id, evento);
+    }
+
+    public Evento buscarEventoPorId(Long eventoId) {
+        return eventos.get(eventoId);
     }
 
     public Evento buscarEventoPorId(long id){
@@ -90,11 +118,34 @@ public class Repositorio {
         return eventos.values()
                 .stream()
                 .filter(Evento::estaAtivo)
-                .filter(e -> e.getDataHoraFim().isAfter(agora))
+                .filter(e -> e.getDataFinal().isAfter(agora))
                 .filter(e -> e.calcularVagasDisponiveis() > 0)
                 .sorted(Comparator
-                        .comparing(Evento::getDataHoraInicio)
+                        .comparing(Evento::getDataInicio)
                         .thenComparing(Evento::getNome))
                 .toList();
     }
+
+    /** ===================
+     *        INGRESSO
+     *  ===================
+     */
+
+    public void salvarIngresso(Ingresso ingresso){
+        ingresso.setId(sequenciaIngressoId);
+        ingressos.put(sequenciaIngressoId, ingresso);
+        sequenciaIngressoId++;
+    }
+
+
+
+    public Ingresso buscarIngressoPorId(long id) {
+        Ingresso ingresso = ingressos.get(id);
+        if (ingresso == null) {
+            throw new IllegalArgumentException("Ingresso não encontrado.");
+        }
+        return ingresso;
+    }
+
+
 }

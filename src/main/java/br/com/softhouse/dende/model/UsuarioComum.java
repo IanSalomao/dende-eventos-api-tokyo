@@ -1,5 +1,6 @@
 package br.com.softhouse.dende.model;
 
+import br.com.softhouse.dende.model.dto.AlterarPerfilComumDTO;
 import br.com.softhouse.dende.model.dto.CompraIngressoDTO;
 import br.com.softhouse.dende.model.enums.Sexo;
 import br.com.softhouse.dende.model.enums.StatusIngresso;
@@ -15,8 +16,19 @@ public class UsuarioComum extends Usuario{
 
     private List<Ingresso> ingressos = new ArrayList<>();
 
-    public UsuarioComum(String nome,  LocalDate dataNascimento, Sexo sexo, String email, String senha){
-        super(nome,  dataNascimento, sexo, email, senha);
+    public UsuarioComum() {
+        super();
+    }
+
+    public UsuarioComum(Long id, String nome, LocalDate dataNascimento, Sexo sexo, String email, String senha) {
+        super(id, nome, dataNascimento, sexo, email, senha);
+    }
+
+    public void alterarPerfil(AlterarPerfilComumDTO dto) {
+        if (dto.nome() != null) setNome(dto.nome());
+        if (dto.dataNascimento() != null) setDataNascimento(dto.dataNascimento());
+        if (dto.sexo() != null) setSexo(dto.sexo());
+        if (dto.senha() != null) setSenha(dto.senha());
     }
 
     /**
@@ -34,9 +46,9 @@ public class UsuarioComum extends Usuario{
                         // Último: eventos cancelados ou finalizados (prioridade 1)
                         .comparing((Ingresso ingresso) -> {
                             Evento evento = ingresso.getEvento();
-                            boolean eventoAtivo = evento.isAtivo();
+                            boolean eventoAtivo = evento.estaAtivo();
                             boolean eventoJaRealizado = evento.getDataInicio().isBefore(agora);
-                            boolean ingressoCancelado = ingresso.isCancelado();
+                            boolean ingressoCancelado = ingresso.estaCancelado();
                             boolean eventoCancelado = ingresso.getStatus() == StatusIngresso.CANCELADO_PELO_EVENTO;
 
                             // Se ingresso cancelado OU evento inativo OU já realizado -> vai pro final
@@ -61,18 +73,18 @@ public class UsuarioComum extends Usuario{
 
         if (evento.getEventoPrincipal() != null) {
 
-            Evento principal = evento.getEventoPrincipal();
+            Evento eventoPrincipal = evento.getEventoPrincipal();
 
             Ingresso ingressoPrincipal =
-                    Ingresso.processarCompraIngresso(principal,
-                            principal.getPrecoIngresso(),
+                    Ingresso.processarCompraIngresso(eventoPrincipal,
+                            eventoPrincipal.getPrecoIngresso(),
                             this);
 
             ingressosGerados.add(ingressoPrincipal);
             this.ingressos.add(ingressoPrincipal);
-            principal.adicionarIngresso(ingressoPrincipal);
+            eventoPrincipal.adicionarIngresso(ingressoPrincipal);
 
-            valorTotal += principal.getPrecoIngresso();
+            valorTotal += eventoPrincipal.getPrecoIngresso().doubleValue();
 
         }
 
@@ -85,8 +97,13 @@ public class UsuarioComum extends Usuario{
         evento.adicionarIngresso(ingressoEvento);
         this.ingressos.add(ingressoEvento);
 
-        valorTotal += evento.getPrecoIngresso();
+        valorTotal += evento.getPrecoIngresso().doubleValue();
 
         return new CompraIngressoDTO(ingressosGerados, valorTotal);
+    }
+
+    @Override
+    public String toString() {
+        return "UsuarioComum{" + super.toString() + "}";
     }
 }

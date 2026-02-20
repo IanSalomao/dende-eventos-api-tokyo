@@ -1,4 +1,5 @@
 package br.com.softhouse.dende.model;
+import br.com.softhouse.dende.model.enums.StatusEvento;
 import br.com.softhouse.dende.model.enums.StatusIngresso;
 
 import java.math.BigDecimal;
@@ -23,14 +24,15 @@ public class Ingresso {
         this.dataCompra = LocalDateTime.now();
     }
 
-    public Evento getEvento() { return evento; }
-    public UsuarioComum getUsuario() { return usuario; }
-    public BigDecimal getValorPago() { return valorPago; }
-    public StatusIngresso getStatus() { return status; }
-    public Long getId() {return id;}
+    public Evento getEvento() { return this.evento; }
+    public UsuarioComum getUsuario() { return this.usuario; }
+    public BigDecimal getValorPago() { return this.valorPago; }
+    public StatusIngresso getStatus() { return this.status; }
+    public LocalDateTime getDataCompra() { return this.dataCompra; }
+    public Long getId() {return this.id;}
     public void setId(Long id) { this.id = id; }
 
-    public static Ingresso processarCompraIngresso(Evento evento, double valorPago, UsuarioComum usuario){
+    public static Ingresso processarCompraIngresso(Evento evento, BigDecimal valorPago, UsuarioComum usuario){
         if(evento.calcularVagasDisponiveis() <= 0){
             throw new IllegalStateException("Evento sem vagas disponíveis");
         }
@@ -38,8 +40,6 @@ public class Ingresso {
         if(!evento.estaAtivo()){
             throw new IllegalStateException("Evento não está ativo.");
         }
-
-        evento.reduzirIngresso();
 
         return new Ingresso(evento, valorPago, usuario);
     }
@@ -51,8 +51,6 @@ public class Ingresso {
 
         this.status = StatusIngresso.CANCELADO;
 
-        evento.aumentarIngresso();
-
         return evento.calcularValorEstorno(this);
     }
 
@@ -61,6 +59,10 @@ public class Ingresso {
             return;
         }
         this.status = StatusIngresso.CANCELADO_PELO_EVENTO;
-        evento.aumentarIngresso();
+    }
+
+
+    public boolean estaCancelado(){
+        return this.status == StatusIngresso.CANCELADO;
     }
 }

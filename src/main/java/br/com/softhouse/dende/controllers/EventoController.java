@@ -23,8 +23,8 @@ public class EventoController {
                 .map(evento -> new EventoResponseDTO(
                         evento.getNome(),
                         evento.getDescricao(),
-                        evento.getDataHoraInicio(),
-                        evento.getDataHoraFim(),
+                        evento.getDataInicio(),
+                        evento.getDataFinal(),
                         evento.getOrganizador().getNome()
                 ))
                 .toList();

@@ -5,9 +5,13 @@ import br.com.dende.softhouse.annotations.request.*;
 import br.com.dende.softhouse.process.route.ResponseEntity;
 import br.com.softhouse.dende.model.Evento;
 import br.com.softhouse.dende.model.Ingresso;
+import br.com.softhouse.dende.model.Usuario;
 import br.com.softhouse.dende.model.UsuarioComum;
+import br.com.softhouse.dende.model.dto.AlterarPerfilComumDTO;
 import br.com.softhouse.dende.model.dto.CompraIngressoDTO;
-import br.com.softhouse.dende.model.dto.IngressoDTO;import br.com.softhouse.dende.repositories.Repositorio;
+import br.com.softhouse.dende.model.dto.IngressoDTO;
+import br.com.softhouse.dende.model.dto.ReativarUsuarioDTO;
+import br.com.softhouse.dende.repositories.Repositorio;
 
 import java.util.List;
 
@@ -20,7 +24,65 @@ public class UsuarioComumController {
         this.repositorio = Repositorio.getInstance();
     }
 
+    @PostMapping
+    public ResponseEntity<String> cadastrarUsuario(@RequestBody UsuarioComum usuarioComum) {
+        try {
+            repositorio.salvarUsuario(usuarioComum);
+            return ResponseEntity.ok("Usuario " + usuarioComum.getEmail() + " cadastrado com sucesso!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400, e.getMessage());
+        }
+    }
 
+    @GetMapping(path = "/{email}")
+    public ResponseEntity<?> visualizarPerfil(@PathVariable(parameter = "email") String email) {
+        Usuario usuario = repositorio.buscarUsuarioComum(email);
+        if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
+        return ResponseEntity.ok(usuario.visualizarPerfil());
+    }
+
+    @PutMapping(path = "/{email}")
+    public ResponseEntity<String> alterarUsuario(
+            @PathVariable(parameter = "email") String email,
+            @RequestBody AlterarPerfilComumDTO dto) {
+        UsuarioComum usuario = repositorio.buscarUsuarioComum(email);
+        if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
+        try {
+            usuario.alterarPerfil(dto);
+            return ResponseEntity.ok("Perfil de " + email + " atualizado com sucesso.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400, e.getMessage());
+        }
+    }
+
+    @PatchMapping(path = "/{email}/desativar")
+    public ResponseEntity<String> desativarUsuario(@PathVariable(parameter = "email") String email) {
+        Usuario usuario = repositorio.buscarUsuarioComum(email);
+        if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
+        if (!usuario.isAtivo()) return ResponseEntity.status(400, "Usuario ja esta inativo.");
+        try {
+            usuario.desativarUsuario();
+            return ResponseEntity.ok("Usuario desativado com sucesso.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400, e.getMessage());
+        }
+    }
+
+    @PatchMapping(path = "/{email}/reativar")
+    public ResponseEntity<String> reativarUsuario(
+            @PathVariable(parameter = "email") String email,
+            @RequestBody ReativarUsuarioDTO body) {
+        Usuario usuario = repositorio.buscarUsuarioComum(email);
+        if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
+        if (usuario.isAtivo()) return ResponseEntity.status(400, "Usuario ja esta ativo.");
+        try {
+            String senha = (body != null) ? body.senha() : null;
+            usuario.reativarUsuario(email, senha);
+            return ResponseEntity.ok("Usuario reativado com sucesso.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400, e.getMessage());
+        }
+    }
     @PostMapping(path = "/{email}/eventos/{eventoId}/ingressos")
     public ResponseEntity<?> comprarIngresso(
             @PathVariable(parameter = "email") String email,
@@ -143,44 +205,6 @@ public class UsuarioComumController {
             return ResponseEntity.status(400, e.getMessage());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(404, e.getMessage());
-        }
-    }
-
-
-    @PostMapping(path = "/{usuarioId}/eventos/{eventoId}/ingresso")
-    public ResponseEntity<?> comprarIngresso(
-            @PathVariable(parameter = "usuarioId") Long usuarioId,
-            @PathVariable(parameter = "eventoId") Long eventoId) {
-        try {
-            UsuarioComum usuario = (UsuarioComum) repositorio.buscarUsuarioPorId(usuarioId);
-            Evento evento = repositorio.buscarEventoPorId(eventoId);
-
-            CompraIngressoDTO compra = usuario.comprarIngresso(evento);
-
-            compra.ingressos().forEach(repositorio::salvarIngresso);
-
-            List<IngressoDTO> ingressosDTO = compra.ingressos()
-                    .stream()
-                    .map(i -> new IngressoDTO(
-                            i.getId(),
-                            i.getEvento().getNome(),
-                            i.getEvento().getDataHoraInicio(),
-                            i.getValorPago(),
-                            i.getStatus().name(),
-                            i.getDataCompra()
-                    ))
-                    .toList();
-
-            return ResponseEntity.ok(
-                    new Object() {
-                        public final double valorTotal = compra.valorTotal();
-                        public final List<IngressoDTO> ingressos = ingressosDTO;
-                    }
-            );
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(400, e.getMessage());
-        } catch (ClassCastException e) {
-            return ResponseEntity.status(400, "Usuário informado não é um usuário comum.");
         }
     }
 }
