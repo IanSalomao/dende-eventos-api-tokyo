@@ -12,7 +12,7 @@ import br.com.softhouse.dende.model.dto.IngressoDTO;import br.com.softhouse.dend
 import java.util.List;
 
 @Controller
-@RequestMapping(path = "/usuario")
+@RequestMapping(path = "/usuarios")
 public class UsuarioComumController {
     private final Repositorio repositorio;
 
@@ -21,22 +21,94 @@ public class UsuarioComumController {
     }
 
 
-    @GetMapping(path = "/{usuarioId}/ingressos")
-    public ResponseEntity<?> listarIngressos(@PathVariable(parameter = "usuarioId") Long usuarioId) {
+    @PostMapping(path = "/{email}/eventos/{eventoId}/ingressos")
+    public ResponseEntity<?> comprarIngresso(
+            @PathVariable(parameter = "email") String email,
+            @PathVariable(parameter = "eventoId") Long eventoId) {
         try {
-            UsuarioComum usuario = repositorio.buscarUsuarioComumPorId(usuarioId);
+            UsuarioComum usuario = repositorio.buscarUsuarioComumPorEmail(email);
+            Evento evento = repositorio.buscarEventoPorId(eventoId);
+
+            CompraIngressoDTO compra = usuario.comprarIngresso(evento);
+            compra.ingressos().forEach(repositorio::salvarIngresso);
+
+            List<IngressoDTO> ingressosDTO = compra.ingressos()
+                    .stream()
+                    .map(i -> new IngressoDTO(
+                            i.getId(),
+                            i.getEvento().getNome(),
+                            i.getEvento().getDataInicio(),
+                            i.getValorPago(),
+                            i.getStatus().name(),
+                            i.getDataCompra()
+                    ))
+                    .toList();
+
+            return ResponseEntity.ok(
+                    new Object() {
+                        public final double valorTotal = compra.valorTotal();
+                        public final List<IngressoDTO> ingressos = ingressosDTO;
+                    }
+            );
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(400, e.getMessage());
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("não encontrado")) {
+                return ResponseEntity.status(404, e.getMessage());
+            }
+            return ResponseEntity.status(400, e.getMessage());
+        }
+    }
+
+    @GetMapping(path = "/{email}/ingressos")
+    public ResponseEntity<?> listarIngressos(
+            @PathVariable(parameter = "email") String email) {
+        try {
+            UsuarioComum usuario = repositorio.buscarUsuarioComumPorEmail(email);
             List<IngressoDTO> lista = usuario.listarIngressos()
                     .stream()
                     .map(i -> new IngressoDTO(
                             i.getId(),
                             i.getEvento().getNome(),
-                            i.getEvento().getDataHoraInicio(),
+                            i.getEvento().getDataInicio(),
                             i.getValorPago(),
                             i.getStatus().name(),
                             i.getDataCompra()
                     ))
                     .toList();
             return ResponseEntity.ok(lista);
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("não encontrado")) {
+                return ResponseEntity.status(404, e.getMessage());
+            }
+            return ResponseEntity.status(400, e.getMessage());
+        }
+    }
+
+    @PutMapping(path = "/{email}/ingressos/{ingressoId}/cancelar")
+    public ResponseEntity<String> cancelarIngresso(
+            @PathVariable(parameter = "email") String email,
+            @PathVariable(parameter = "ingressoId") Long ingressoId) {
+        try {
+            UsuarioComum usuario = repositorio.buscarUsuarioComumPorEmail(email);
+            Ingresso ingresso = repositorio.buscarIngressoPorId(ingressoId);
+
+            if (!ingresso.getUsuario().getEmail().equals(email)) {
+                return ResponseEntity.status(403, "Ingresso não pertence a este usuário.");
+            }
+
+            double valorEstorno = ingresso.cancelarIngresso();
+
+            String mensagem = "Ingresso cancelado com sucesso!";
+            if (valorEstorno > 0) {
+                mensagem += " Valor de estorno: R$ " + String.format("%.2f", valorEstorno);
+            } else {
+                mensagem += " Sem estorno disponível.";
+            }
+
+            return ResponseEntity.ok(mensagem);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(400, e.getMessage());
         } catch (IllegalArgumentException e) {
             if (e.getMessage().contains("não encontrado")) {
                 return ResponseEntity.status(404, e.getMessage());

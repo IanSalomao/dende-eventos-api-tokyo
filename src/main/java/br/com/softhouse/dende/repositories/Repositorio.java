@@ -12,11 +12,11 @@ public class Repositorio {
 
     private static Repositorio instance = new Repositorio();
     private final Map<Long, Ingresso> ingressos;
-    private final Map<Long, Usuario> usuarios;
+    private final Map<String, Usuario> usuarios;
     private final Map<Long, Evento> eventos;
 
     private long sequenciaIngressoId = 1L;
-    private long sequenciaUsuarioId = 1L;
+    private long sequenciaEventoId = 1L;
 
     private Repositorio() {
         this.ingressos = new HashMap<>();
@@ -34,26 +34,38 @@ public class Repositorio {
         sequenciaIngressoId++;
     }
 
-    public void salvarUsuario(Usuario usuario){
-        usuario.setId(sequenciaUsuarioId);
-        usuarios.put(sequenciaUsuarioId, usuario);
-        sequenciaUsuarioId++;
+    public void salvarUsuario(Usuario usuario) {
+        if (usuarios.containsKey(usuario.getEmail())) {
+            throw new IllegalArgumentException("Já existe usuário com esse e-mail.");
+        }
+        usuarios.put(usuario.getEmail(), usuario);
     }
 
-    public Usuario buscarUsuarioPorId(Long id) {
-        Usuario usuario = usuarios.get(id);
+    public void salvarEvento(Evento evento) {
+        evento.atribuirId(sequenciaEventoId);
+        eventos.put(sequenciaEventoId, evento);
+        sequenciaEventoId++;
+    }
+
+    public Usuario buscarUsuarioPorEmail(String email) {
+        Usuario usuario = usuarios.get(email);
         if (usuario == null) {
             throw new IllegalArgumentException("Usuário não encontrado.");
         }
         return usuario;
     }
 
-    public UsuarioComum buscarUsuarioComumPorId(Long id) {
-        Usuario usuario = buscarUsuarioPorId(id);
+    public UsuarioComum buscarUsuarioComumPorEmail(String email) {
+        Usuario usuario = buscarUsuarioPorEmail(email);
         if (!(usuario instanceof UsuarioComum)) {
             throw new IllegalArgumentException("Usuário informado não é um usuário comum.");
         }
         return (UsuarioComum) usuario;
+    }
+
+    public Organizador buscarOrganizadorPorEmail(String email) {
+        Usuario usuario = buscarUsuarioPorEmail(email);
+        throw new IllegalArgumentException("Usuário informado não é um organizador.");
     }
 
     public Ingresso buscarIngressoPorId(long id) {
