@@ -311,10 +311,12 @@ public class Evento {
     }
 
     public double calcularValorEstorno(Ingresso ingresso) {
-        if (!permiteEstorno) {
+        if (permiteEstorno == null || !permiteEstorno) {
             return 0;
         }
-
+        if (taxaEstorno == null) {
+            return ingresso.getValorPago().doubleValue();
+        }
         double valor = ingresso.getValorPago().doubleValue();
         return valor - (valor * this.taxaEstorno.doubleValue());
     }

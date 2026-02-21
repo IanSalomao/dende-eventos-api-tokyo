@@ -83,6 +83,7 @@ public class UsuarioComumController {
             return ResponseEntity.status(400, e.getMessage());
         }
     }
+
     @PostMapping(path = "/{email}/eventos/{eventoId}/ingressos")
     public ResponseEntity<?> comprarIngresso(
             @PathVariable(parameter = "email") String email,
@@ -152,7 +153,6 @@ public class UsuarioComumController {
             @PathVariable(parameter = "email") String email,
             @PathVariable(parameter = "ingressoId") Long ingressoId) {
         try {
-            UsuarioComum usuario = repositorio.buscarUsuarioComumPorEmail(email);
             Ingresso ingresso = repositorio.buscarIngressoPorId(ingressoId);
 
             if (!ingresso.getUsuario().getEmail().equals(email)) {
@@ -176,35 +176,9 @@ public class UsuarioComumController {
                 return ResponseEntity.status(404, e.getMessage());
             }
             return ResponseEntity.status(400, e.getMessage());
+        }catch (Exception e) {
+            return ResponseEntity.status(500, "ERRO: " + e.getClass().getName() + " - " + e.getMessage());
         }
     }
 
-
-    @PutMapping(path = "/{usuarioId}/ingressos/{ingressoId}/cancelar")
-    public ResponseEntity<String> cancelarIngresso(
-            @PathVariable(parameter = "usuarioId") Long usuarioId,
-            @PathVariable(parameter = "ingressoId") Long ingressoId) {
-        try {
-            Ingresso ingresso = repositorio.buscarIngressoPorId(ingressoId);
-
-            if (!ingresso.getUsuario().getId().equals(usuarioId)) {
-                return ResponseEntity.status(403, "Ingresso não pertence a este usuário.");
-            }
-
-            double valorEstorno = ingresso.cancelarIngresso();
-
-            String mensagem = "Ingresso cancelado com sucesso!";
-            if (valorEstorno > 0) {
-                mensagem += " Valor de estorno: R$ " + String.format("%.2f", valorEstorno);
-            } else {
-                mensagem += " Sem estorno disponível.";
-            }
-
-            return ResponseEntity.ok(mensagem);
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(400, e.getMessage());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(404, e.getMessage());
-        }
-    }
 }

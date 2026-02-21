@@ -103,10 +103,6 @@ public class Repositorio {
         eventos.put(id, evento);
     }
 
-    public Evento buscarEventoPorId(Long eventoId) {
-        return eventos.get(eventoId);
-    }
-
     public Evento buscarEventoPorId(long id){
         Evento evento = eventos.get(id);
         if (evento== null) {
