@@ -33,14 +33,12 @@ public class Ingresso {
     public void setId(Long id) { this.id = id; }
 
     public static Ingresso processarCompraIngresso(Evento evento, BigDecimal valorPago, UsuarioComum usuario){
-        if(evento.calcularVagasDisponiveis() <= 0){
-            throw new IllegalStateException("Evento sem vagas disponíveis");
-        }
-
-        if(!evento.estaAtivo()){
+        if (!evento.estaAtivo())
             throw new IllegalStateException("Evento não está ativo.");
-        }
-
+        if (evento.getDataInicio().isBefore(LocalDateTime.now()))
+            throw new IllegalStateException("Evento já foi realizado.");
+        if (evento.calcularVagasDisponiveis() <= 0)
+            throw new IllegalStateException("Evento sem vagas disponíveis.");
         return new Ingresso(evento, valorPago, usuario);
     }
 

@@ -38,9 +38,10 @@ public class Repositorio {
     }
 
     public void salvarUsuario(UsuarioComum usuario) {
-        if (existeUsuario(usuario.getEmail())) {
-            throw new IllegalArgumentException("Ja existe um usuario com o e-mail: " + usuario.getEmail());
-        }
+        if (existeUsuario(usuario.getEmail()))
+            throw new IllegalArgumentException("Já existe um usuário com o e-mail: " + usuario.getEmail());
+        if (usuario.getEmail() == null || usuario.getEmail().isBlank())
+            throw new IllegalArgumentException("E-mail é obrigatório.");
         usuarios.put(usuario.getEmail(), usuario);
     }
 
@@ -48,6 +49,8 @@ public class Repositorio {
         if (existeUsuario(usuario.getEmail())) {
             throw new IllegalArgumentException("Ja existe um usuario com o e-mail: " + usuario.getEmail());
         }
+        if (usuario.getEmail() == null || usuario.getEmail().isBlank())
+            throw new IllegalArgumentException("E-mail é obrigatório.");
         usuarios.put(usuario.getEmail(), usuario);
     }
 
