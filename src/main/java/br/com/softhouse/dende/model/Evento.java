@@ -128,62 +128,6 @@ public class Evento {
         return eventoPrincipal;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
-    public void setPaginaEvento(String paginaEvento) {
-        this.paginaEvento = paginaEvento;
-    }
-
-    public void setDataInicio(LocalDateTime dataInicio) {
-        this.dataInicio = dataInicio;
-    }
-
-    public void setDataFinal(LocalDateTime dataFinal) {
-        this.dataFinal = dataFinal;
-    }
-
-    public void setTipo(TipoEvento tipo) {
-        this.tipo = tipo;
-    }
-
-    public void setModalidade(ModalidadeEvento modalidade) {
-        this.modalidade = modalidade;
-    }
-
-    public void setCapacidadeMaxima(Integer capacidadeMaxima) {
-        this.capacidadeMaxima = capacidadeMaxima;
-    }
-
-    public void setLocalAcesso(String endereco) {
-        this.localAcesso = endereco;
-    }
-
-    public void setPrecoIngresso(BigDecimal precoIngresso) {
-        this.precoIngresso = precoIngresso;
-    }
-
-    public void setPermiteEstorno(Boolean permiteEstorno) {
-        this.permiteEstorno = permiteEstorno;
-    }
-
-    public void setTaxaEstorno(BigDecimal taxaEstorno) {
-        this.taxaEstorno = taxaEstorno;
-    }
-
-    public void setEventoPrincipal(Evento eventoPrincipal) {
-        this.eventoPrincipal = eventoPrincipal;
-    }
-
-    public void setStatus(StatusEvento status) {
-        this.status = status;
-    }
-
     public UsuarioOrganizador getOrganizador() {
         return usuarioOrganizador;
     }
@@ -305,9 +249,6 @@ public class Evento {
 
     public boolean estaAtivo(){
         return this.status == StatusEvento.ATIVO;
-    }
-    public boolean estaInativo(){
-        return this.status != StatusEvento.ATIVO;
     }
 
     public double calcularValorEstorno(Ingresso ingresso) {

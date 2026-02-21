@@ -72,17 +72,8 @@ public class UsuarioOrganizador extends Usuario {
         return Collections.unmodifiableList(eventos);
     }
 
-    public List<Evento> verificarEventosAtivos() {
-        return eventos.stream()
-                .filter(e -> e.getStatus() == StatusEvento.ATIVO)
-                .collect(Collectors.toList());
-    }
-
-    public Empresa getEmpresa() { return empresa; }
-    public void setEmpresa(Empresa empresa) { this.empresa = empresa; }
-
     @Override
     public String toString() {
-        return "UsuarioOrganizador{" + super.toString() + "}";
+        return "UsuarioOrganizador{" + visualizarPerfil() + "}";
     }
 }

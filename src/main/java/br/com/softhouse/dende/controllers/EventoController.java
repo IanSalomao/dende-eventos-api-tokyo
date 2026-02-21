@@ -16,7 +16,7 @@ public class EventoController {
         this.repositorio = Repositorio.getInstance();
     }
 
-    @GetMapping(path = "/")
+    @GetMapping
     public ResponseEntity<List<EventoResponseDTO>> feedEventos() {
         List<EventoResponseDTO> lista = repositorio.feedEventos()
                 .stream()
