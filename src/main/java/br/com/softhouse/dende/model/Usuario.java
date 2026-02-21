@@ -1,7 +1,5 @@
 package br.com.softhouse.dende.model;
 
-import br.com.softhouse.dende.model.dto.AlterarPerfilComumDTO;
-import br.com.softhouse.dende.model.dto.AlterarPerfilOrganizadorDTO;
 import br.com.softhouse.dende.model.enums.Sexo;
 
 import java.time.LocalDate;
