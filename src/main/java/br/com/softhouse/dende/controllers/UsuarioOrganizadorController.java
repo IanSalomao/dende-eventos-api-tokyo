@@ -4,13 +4,16 @@ import br.com.dende.softhouse.annotations.Controller;
 import br.com.dende.softhouse.annotations.request.*;
 import br.com.dende.softhouse.process.route.ResponseEntity;
 import br.com.softhouse.dende.model.Evento;
+import br.com.softhouse.dende.model.UsuarioComum;
 import br.com.softhouse.dende.model.UsuarioOrganizador;
 import br.com.softhouse.dende.model.dto.AlterarPerfilOrganizadorDTO;
 import br.com.softhouse.dende.model.dto.ListarEventoOrganizadorDTO;
 import br.com.softhouse.dende.model.dto.ReativarUsuarioDTO;
 import br.com.softhouse.dende.repositories.Repositorio;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -111,17 +114,18 @@ public class UsuarioOrganizadorController {
             @RequestBody Evento novosDados) {
         UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
         if (organizador == null) return ResponseEntity.status(404, "Organizador nao encontrado.");
-        if (repositorio.buscarEventoPorId(eventoId) == null) return ResponseEntity.status(404, "Evento nao encontrado.");
         try {
+            repositorio.buscarEventoPorId(eventoId);
             organizador.alterarEvento(eventoId, novosDados);
             return ResponseEntity.ok("Evento alterado com sucesso.");
         } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("não encontrado")) return ResponseEntity.status(404, e.getMessage());
             return ResponseEntity.status(400, e.getMessage());
         }
     }
 
     @GetMapping(path = "/{email}/eventos")
-    public ResponseEntity<?> listarMeusEventos(@PathVariable(parameter = "email") String email) {
+    public ResponseEntity<?> listarEventos(@PathVariable(parameter = "email") String email) {
         UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
         if (organizador == null) return ResponseEntity.status(404, "Organizador nao encontrado.");
 
@@ -153,13 +157,19 @@ public class UsuarioOrganizadorController {
             Evento evento = repositorio.buscarEventoPorId(eventoId);
 
             if (!evento.getOrganizador().getEmail().equals(email)) {
-                return ResponseEntity.status(403, "Você não tem permissão para alterar este evento.");
+                return ResponseEntity.status(403, "Voce nao tem permissao para alterar este evento.");
             }
 
             switch (status.toLowerCase()) {
                 case "ativar" -> evento.ativarEvento();
-                case "desativar" -> evento.desativarEvento();
-                default -> throw new IllegalArgumentException("Status inválido. Use 'ativar' ou 'desativar'.");
+                case "desativar" -> {
+                    Map<UsuarioComum, BigDecimal> estornos = evento.desativarEvento();
+                    estornos.forEach((usuario, valor) ->
+                            System.out.println("Estorno de R$ " + valor + " para " + usuario.getEmail())
+                    );
+                }
+
+                default -> throw new IllegalArgumentException("Status invalido. Use 'ativar' ou 'desativar'.");
             }
 
             return ResponseEntity.ok("Evento " + status + " com sucesso!");
@@ -167,9 +177,7 @@ public class UsuarioOrganizadorController {
         } catch (IllegalStateException e) {
             return ResponseEntity.status(400, e.getMessage());
         } catch (IllegalArgumentException e) {
-            if (e.getMessage().contains("não encontrado")) {
-                return ResponseEntity.status(404, e.getMessage());
-            }
+            if (e.getMessage().contains("não encontrado")) return ResponseEntity.status(404, e.getMessage());
             return ResponseEntity.status(400, e.getMessage());
         }
     }

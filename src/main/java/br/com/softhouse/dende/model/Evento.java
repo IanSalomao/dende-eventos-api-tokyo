@@ -243,8 +243,12 @@ public class Evento {
         this.ingressos.add(ingresso);
     }
 
+
     public int calcularVagasDisponiveis(){
-        return this.capacidadeMaxima - this.ingressos.size();
+        long ativos = this.ingressos.stream()
+                .filter(i -> i.getStatus() == StatusIngresso.ATIVO)
+                .count();
+            return this.capacidadeMaxima - (int) ativos;
     }
 
     public boolean estaAtivo(){
@@ -270,7 +274,7 @@ public class Evento {
         this.status = StatusEvento.ATIVO;
     }
 
-    public void desativarEvento() {
+    public Map<UsuarioComum, BigDecimal> desativarEvento() {
         if (this.status != StatusEvento.ATIVO) {
             throw new IllegalStateException("Evento não está ativo.");
         }
@@ -278,13 +282,13 @@ public class Evento {
         this.status = StatusEvento.INATIVO;
 
         Map<UsuarioComum, BigDecimal> estornos = new HashMap<>();
-
         for (Ingresso ingresso : ingressos) {
             if (ingresso.getStatus() == StatusIngresso.ATIVO) {
-                estornos.put(ingresso.getUsuario(), ingresso.getValorPago());
+                double valorEstorno = ingresso.getEvento().calcularValorEstorno(ingresso);
+                estornos.put(ingresso.getUsuario(), BigDecimal.valueOf(valorEstorno));
                 ingresso.cancelarPorEvento();
             }
         }
+        return estornos;
     }
-
 }
