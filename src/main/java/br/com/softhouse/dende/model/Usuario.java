@@ -8,11 +8,12 @@ import java.util.Objects;
 
 public abstract class Usuario {
 
-    private Long id;
+    private String email;
     private String nome;
+
     private LocalDate dataNascimento;
     private Sexo sexo;
-    private String email;
+
     private String senha;
     private Boolean ativo;
 
@@ -21,7 +22,6 @@ public abstract class Usuario {
     }
 
     public Usuario(Long id, String nome, LocalDate dataNascimento, Sexo sexo, String email, String senha) {
-        this.id = id;
         this.nome = nome;
         this.dataNascimento = dataNascimento;
         this.sexo = sexo;
@@ -62,6 +62,8 @@ public abstract class Usuario {
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
     public void setDataNascimento(LocalDate dataNascimento) { this.dataNascimento = dataNascimento; }
+    public LocalDate getDataNascimento() {return dataNascimento;}
+    public Sexo getSexo() {return sexo;}
     public void setSexo(Sexo sexo) { this.sexo = sexo; }
     public String getEmail() { return email; }
     public void setSenha(String senha) { this.senha = senha; }
@@ -81,6 +83,6 @@ public abstract class Usuario {
 
     @Override
     public String toString() {
-        return "Usuario{id=" + id + ", nome='" + nome + "', email='" + email + "', ativo=" + ativo + '}';
+        return "Usuario{ nome='" + nome + "', email='" + email + "', ativo=" + ativo + '}';
     }
 }

@@ -3,7 +3,7 @@ package br.com.softhouse.dende.model.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record ListarEventoOrganizadorDTO (
+public record EventoOrganizadorResponseDTO(
         String nome,
         LocalDateTime dataInicio,
         LocalDateTime dataFinal,

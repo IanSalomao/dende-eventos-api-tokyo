@@ -243,7 +243,6 @@ public class Evento {
         this.ingressos.add(ingresso);
     }
 
-
     public int calcularVagasDisponiveis(){
         long ativos = this.ingressos.stream()
                 .filter(i -> i.getStatus() == StatusIngresso.ATIVO)

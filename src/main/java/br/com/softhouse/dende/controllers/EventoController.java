@@ -19,8 +19,7 @@ public class EventoController {
     @GetMapping
     public ResponseEntity<List<EventoResponseDTO>> feedEventos() {
         List<EventoResponseDTO> lista = repositorio.feedEventos()
-                .stream()
-                .map(evento -> new EventoResponseDTO(
+                .stream().map(evento -> new EventoResponseDTO(
                         evento.getNome(),
                         evento.getDescricao(),
                         evento.getDataInicio(),
