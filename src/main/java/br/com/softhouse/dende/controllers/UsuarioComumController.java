@@ -9,7 +9,7 @@ import br.com.softhouse.dende.model.Usuario;
 import br.com.softhouse.dende.model.UsuarioComum;
 import br.com.softhouse.dende.model.dto.AlterarPerfilComumDTO;
 import br.com.softhouse.dende.model.dto.CompraIngressoDTO;
-import br.com.softhouse.dende.model.dto.IngressoDTO;
+import br.com.softhouse.dende.model.dto.IngressoResponseDTO;
 import br.com.softhouse.dende.model.dto.ReativarUsuarioDTO;
 import br.com.softhouse.dende.repositories.Repositorio;
 
@@ -95,9 +95,9 @@ public class UsuarioComumController {
             CompraIngressoDTO compra = usuario.comprarIngresso(evento);
             compra.ingressos().forEach(repositorio::salvarIngresso);
 
-            List<IngressoDTO> ingressosDTO = compra.ingressos()
+            List<IngressoResponseDTO> ingressosDTO = compra.ingressos()
                     .stream()
-                    .map(i -> new IngressoDTO(
+                    .map(i -> new IngressoResponseDTO(
                             i.getId(),
                             i.getEvento().getNome(),
                             i.getEvento().getDataInicio(),
@@ -110,7 +110,7 @@ public class UsuarioComumController {
             return ResponseEntity.ok(
                     new Object() {
                         public final double valorTotal = compra.valorTotal();
-                        public final List<IngressoDTO> ingressos = ingressosDTO;
+                        public final List<IngressoResponseDTO> ingressos = ingressosDTO;
                     }
             );
         } catch (IllegalStateException e) {
@@ -128,9 +128,9 @@ public class UsuarioComumController {
             @PathVariable(parameter = "email") String email) {
         try {
             UsuarioComum usuario = repositorio.buscarUsuarioComumPorEmail(email);
-            List<IngressoDTO> lista = usuario.listarIngressos()
+            List<IngressoResponseDTO> lista = usuario.listarIngressos()
                     .stream()
-                    .map(i -> new IngressoDTO(
+                    .map(i -> new IngressoResponseDTO(
                             i.getId(),
                             i.getEvento().getNome(),
                             i.getEvento().getDataInicio(),

@@ -7,7 +7,7 @@ import br.com.softhouse.dende.model.Evento;
 import br.com.softhouse.dende.model.UsuarioComum;
 import br.com.softhouse.dende.model.UsuarioOrganizador;
 import br.com.softhouse.dende.model.dto.AlterarPerfilOrganizadorDTO;
-import br.com.softhouse.dende.model.dto.ListarEventoOrganizadorDTO;
+import br.com.softhouse.dende.model.dto.EventoOrganizadorResponseDTO;
 import br.com.softhouse.dende.model.dto.ReativarUsuarioDTO;
 import br.com.softhouse.dende.repositories.Repositorio;
 
@@ -129,8 +129,8 @@ public class UsuarioOrganizadorController {
         UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
         if (organizador == null) return ResponseEntity.status(404, "Organizador nao encontrado.");
 
-        List<ListarEventoOrganizadorDTO> resultado = organizador.listarMeusEventos().stream()
-                .map(e -> new ListarEventoOrganizadorDTO(
+        List<EventoOrganizadorResponseDTO> resultado = organizador.listarMeusEventos().stream()
+                .map(e -> new EventoOrganizadorResponseDTO(
                         e.getNome(),
                         e.getDataInicio(),
                         e.getDataFinal(),
@@ -139,8 +139,8 @@ public class UsuarioOrganizadorController {
                         e.getLocalAcesso()
                 ))
                 .sorted(java.util.Comparator
-                        .comparing(ListarEventoOrganizadorDTO::dataInicio)
-                        .thenComparing(ListarEventoOrganizadorDTO::nome, String.CASE_INSENSITIVE_ORDER))
+                        .comparing(EventoOrganizadorResponseDTO::dataInicio)
+                        .thenComparing(EventoOrganizadorResponseDTO::nome, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(resultado);
