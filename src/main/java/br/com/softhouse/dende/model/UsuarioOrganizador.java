@@ -19,10 +19,12 @@ public class UsuarioOrganizador extends Usuario {
         super();
     }
 
-    public UsuarioOrganizador(Long id, String nome, LocalDate dataNascimento, Sexo sexo, String email, String senha, Empresa empresa) {
-        super(id, nome, dataNascimento, sexo, email, senha);
+    public UsuarioOrganizador(String nome, LocalDate dataNascimento, Sexo sexo, String email, String senha, Empresa empresa) {
+        super(nome, dataNascimento, sexo, email, senha);
         this.empresa = empresa;
     }
+
+    public Empresa getEmpresa(){return empresa;}
 
 
     public void alterarPerfil(AlterarPerfilOrganizadorDTO dto) {

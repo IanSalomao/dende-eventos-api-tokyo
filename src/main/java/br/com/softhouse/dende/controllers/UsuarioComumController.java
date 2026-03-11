@@ -3,13 +3,16 @@ package br.com.softhouse.dende.controllers;
 import br.com.dende.softhouse.annotations.Controller;
 import br.com.dende.softhouse.annotations.request.*;
 import br.com.dende.softhouse.process.route.ResponseEntity;
+import br.com.softhouse.dende.mappers.IngressoMapper;
+import br.com.softhouse.dende.mappers.UsuarioComumMapper;
 import br.com.softhouse.dende.model.Evento;
 import br.com.softhouse.dende.model.Ingresso;
 import br.com.softhouse.dende.model.Usuario;
 import br.com.softhouse.dende.model.UsuarioComum;
 import br.com.softhouse.dende.model.dto.AlterarPerfilComumDTO;
-import br.com.softhouse.dende.model.dto.CompraIngressoDTO;
-import br.com.softhouse.dende.model.dto.IngressoResponseDTO;
+import br.com.softhouse.dende.model.dto.response.CompraIngressoResponseDTO;
+import br.com.softhouse.dende.model.dto.request.CadastrarUsuarioComumRequestDto;
+import br.com.softhouse.dende.model.dto.response.IngressoResponseDTO;
 import br.com.softhouse.dende.model.dto.ReativarUsuarioDTO;
 import br.com.softhouse.dende.repositories.Repositorio;
 
@@ -25,10 +28,11 @@ public class UsuarioComumController {
     }
 
     @PostMapping
-    public ResponseEntity<String> cadastrarUsuario(@RequestBody UsuarioComum usuarioComum) {
+    public ResponseEntity<String> cadastrarUsuario(@RequestBody CadastrarUsuarioComumRequestDto dto) {
         try {
-            repositorio.salvarUsuario(usuarioComum);
-            return ResponseEntity.ok("Usuario " + usuarioComum.getEmail() + " cadastrado com sucesso!");
+            UsuarioComum usuario = UsuarioComumMapper.toModel(dto);
+            repositorio.salvarUsuario(usuario);
+            return ResponseEntity.ok("Usuario " + usuario.getEmail() + " cadastrado com sucesso!");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(400, e.getMessage());
         }
@@ -36,9 +40,9 @@ public class UsuarioComumController {
 
     @GetMapping(path = "/{email}")
     public ResponseEntity<?> visualizarPerfil(@PathVariable(parameter = "email") String email) {
-        Usuario usuario = repositorio.buscarUsuarioComum(email);
+        UsuarioComum usuario = repositorio.buscarUsuarioComum(email);
         if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
-        return ResponseEntity.ok(usuario.visualizarPerfil());
+        return ResponseEntity.ok(UsuarioComumMapper.toResponse(usuario));
     }
 
     @PutMapping(path = "/{email}")
@@ -92,27 +96,20 @@ public class UsuarioComumController {
             UsuarioComum usuario = repositorio.buscarUsuarioComumPorEmail(email);
             Evento evento = repositorio.buscarEventoPorId(eventoId);
 
-            CompraIngressoDTO compra = usuario.comprarIngresso(evento);
-            compra.ingressos().forEach(repositorio::salvarIngresso);
+            List<Ingresso> ingressos = usuario.comprarIngresso(evento);
+            ingressos.forEach(repositorio::salvarIngresso);
 
-            List<IngressoResponseDTO> ingressosDTO = compra.ingressos()
-                    .stream()
-                    .map(i -> new IngressoResponseDTO(
-                            i.getId(),
-                            i.getEvento().getNome(),
-                            i.getEvento().getDataInicio(),
-                            i.getValorPago(),
-                            i.getStatus().name(),
-                            i.getDataCompra()
-                    ))
+            double valorTotal = ingressos.stream()
+                    .mapToDouble(i -> i.getValorPago().doubleValue())
+                    .sum();
+
+            List<IngressoResponseDTO> ingressosDTO = ingressos.stream()
+                    .map(IngressoMapper::toResponse)
                     .toList();
 
-            return ResponseEntity.ok(
-                    new Object() {
-                        public final double valorTotal = compra.valorTotal();
-                        public final List<IngressoResponseDTO> ingressos = ingressosDTO;
-                    }
-            );
+            return ResponseEntity.ok(new CompraIngressoResponseDTO(ingressosDTO, valorTotal));
+
+
         } catch (IllegalStateException e) {
             return ResponseEntity.status(400, e.getMessage());
         } catch (IllegalArgumentException e) {
@@ -130,14 +127,7 @@ public class UsuarioComumController {
             UsuarioComum usuario = repositorio.buscarUsuarioComumPorEmail(email);
             List<IngressoResponseDTO> lista = usuario.listarIngressos()
                     .stream()
-                    .map(i -> new IngressoResponseDTO(
-                            i.getId(),
-                            i.getEvento().getNome(),
-                            i.getEvento().getDataInicio(),
-                            i.getValorPago(),
-                            i.getStatus().name(),
-                            i.getDataCompra()
-                    ))
+                    .map(IngressoMapper::toResponse)
                     .toList();
             return ResponseEntity.ok(lista);
         } catch (IllegalArgumentException e) {
