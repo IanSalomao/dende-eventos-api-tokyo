@@ -10,7 +10,6 @@ import br.com.softhouse.dende.model.Ingresso;
 import br.com.softhouse.dende.model.Usuario;
 import br.com.softhouse.dende.model.UsuarioComum;
 import br.com.softhouse.dende.model.dto.AlterarPerfilComumDTO;
-import br.com.softhouse.dende.model.dto.response.CompraIngressoResponseDTO;
 import br.com.softhouse.dende.model.dto.request.CadastrarUsuarioComumRequestDto;
 import br.com.softhouse.dende.model.dto.response.IngressoResponseDTO;
 import br.com.softhouse.dende.model.dto.ReativarUsuarioDTO;
@@ -41,7 +40,7 @@ public class UsuarioComumController {
     @GetMapping(path = "/{email}")
     public ResponseEntity<?> visualizarPerfil(@PathVariable(parameter = "email") String email) {
         UsuarioComum usuario = repositorio.buscarUsuarioComum(email);
-        if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
+        //if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
         return ResponseEntity.ok(UsuarioComumMapper.toResponse(usuario));
     }
 
@@ -50,7 +49,7 @@ public class UsuarioComumController {
             @PathVariable(parameter = "email") String email,
             @RequestBody AlterarPerfilComumDTO dto) {
         UsuarioComum usuario = repositorio.buscarUsuarioComum(email);
-        if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
+        //if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
         try {
             usuario.alterarPerfil(dto);
             return ResponseEntity.ok("Perfil de " + email + " atualizado com sucesso.");
@@ -62,7 +61,7 @@ public class UsuarioComumController {
     @PatchMapping(path = "/{email}/desativar")
     public ResponseEntity<String> desativarUsuario(@PathVariable(parameter = "email") String email) {
         Usuario usuario = repositorio.buscarUsuarioComum(email);
-        if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
+       // if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
         if (!usuario.isAtivo()) return ResponseEntity.status(400, "Usuario ja esta inativo.");
         try {
             usuario.desativarUsuario();
@@ -93,23 +92,13 @@ public class UsuarioComumController {
             @PathVariable(parameter = "email") String email,
             @PathVariable(parameter = "eventoId") Long eventoId) {
         try {
-            UsuarioComum usuario = repositorio.buscarUsuarioComumPorEmail(email);
+            UsuarioComum usuario = repositorio.buscarUsuarioComum(email);
             Evento evento = repositorio.buscarEventoPorId(eventoId);
 
             List<Ingresso> ingressos = usuario.comprarIngresso(evento);
             ingressos.forEach(repositorio::salvarIngresso);
 
-            double valorTotal = ingressos.stream()
-                    .mapToDouble(i -> i.getValorPago().doubleValue())
-                    .sum();
-
-            List<IngressoResponseDTO> ingressosDTO = ingressos.stream()
-                    .map(IngressoMapper::toResponse)
-                    .toList();
-
-            return ResponseEntity.ok(new CompraIngressoResponseDTO(ingressosDTO, valorTotal));
-
-
+            return ResponseEntity.ok(IngressoMapper.toCompraResponse(ingressos));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(400, e.getMessage());
         } catch (IllegalArgumentException e) {
@@ -124,7 +113,7 @@ public class UsuarioComumController {
     public ResponseEntity<?> listarIngressos(
             @PathVariable(parameter = "email") String email) {
         try {
-            UsuarioComum usuario = repositorio.buscarUsuarioComumPorEmail(email);
+            UsuarioComum usuario = repositorio.buscarUsuarioComum(email);
             List<IngressoResponseDTO> lista = usuario.listarIngressos()
                     .stream()
                     .map(IngressoMapper::toResponse)

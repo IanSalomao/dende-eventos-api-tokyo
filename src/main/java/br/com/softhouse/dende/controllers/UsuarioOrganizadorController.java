@@ -132,16 +132,12 @@ public class UsuarioOrganizadorController {
         UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
         if (organizador == null) return ResponseEntity.status(404, "Organizador nao encontrado.");
 
-        List<EventoOrganizadorResponseDTO> resultado = organizador.listarMeusEventos().stream()
+        List<EventoOrganizadorResponseDTO> resultado = organizador.listarEventosOrganizador().stream()
                 .map(UsuarioOrganizadorMapper::toListarEventoOrganizadorDTO)
-                .sorted(java.util.Comparator
-                        .comparing(EventoOrganizadorResponseDTO::dataInicio)
-                        .thenComparing(EventoOrganizadorResponseDTO::nome, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(resultado);
     }
-
 
     @PatchMapping(path = "/{email}/eventos/{eventoId}/{status}")
     public ResponseEntity<String> alterarStatusEvento(
@@ -149,7 +145,6 @@ public class UsuarioOrganizadorController {
             @PathVariable(parameter = "eventoId") Long eventoId,
             @PathVariable(parameter = "status") String status) {
         try {
-            UsuarioOrganizador organizador = repositorio.buscarOrganizadorPorEmail(email);
             Evento evento = repositorio.buscarEventoPorId(eventoId);
 
             if (!evento.getOrganizador().getEmail().equals(email)) {
@@ -157,18 +152,24 @@ public class UsuarioOrganizadorController {
             }
 
             switch (status.toLowerCase()) {
-                case "ativar" -> evento.ativarEvento();
+                case "ativar" -> {
+                    evento.ativarEvento();
+                    return ResponseEntity.ok("Evento ativado com sucesso!");
+                }
                 case "desativar" -> {
                     Map<UsuarioComum, BigDecimal> estornos = evento.desativarEvento();
+                    StringBuilder msg = new StringBuilder("Evento desativado com sucesso!");
                     estornos.forEach((usuario, valor) ->
-                            System.out.println("Estorno de R$ " + valor + " para " + usuario.getEmail())
+                            msg.append(" Estorno de R$ ")
+                                    .append(String.format("%.2f", valor))
+                                    .append(" para ")
+                                    .append(usuario.getEmail())
                     );
+                    return ResponseEntity.ok(msg.toString());
                 }
 
                 default -> throw new IllegalArgumentException("Status invalido. Use 'ativar' ou 'desativar'.");
             }
-
-            return ResponseEntity.ok("Evento " + status + " com sucesso!");
 
         } catch (IllegalStateException e) {
             return ResponseEntity.status(400, e.getMessage());

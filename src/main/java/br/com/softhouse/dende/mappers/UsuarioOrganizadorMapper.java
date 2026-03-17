@@ -18,7 +18,6 @@ public class UsuarioOrganizadorMapper {
         );
     }
 
-
     public static PerfilOrganizadorResponseDTO toResponse(UsuarioOrganizador organizador) {
         String nomeFantasia = null;
         String cnpj = null;

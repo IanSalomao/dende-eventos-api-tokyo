@@ -1,7 +1,6 @@
 package br.com.softhouse.dende.model;
 
 import br.com.softhouse.dende.model.dto.AlterarPerfilComumDTO;
-import br.com.softhouse.dende.model.dto.response.CompraIngressoResponseDTO;
 import br.com.softhouse.dende.model.enums.Sexo;
 import br.com.softhouse.dende.model.enums.StatusIngresso;
 

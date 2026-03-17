@@ -1,7 +1,10 @@
 package br.com.softhouse.dende.mappers;
 
 import br.com.softhouse.dende.model.Ingresso;
+import br.com.softhouse.dende.model.dto.response.CompraIngressoResponseDTO;
 import br.com.softhouse.dende.model.dto.response.IngressoResponseDTO;
+
+import java.util.List;
 
 public class IngressoMapper {
     public static IngressoResponseDTO toResponse(Ingresso ingresso) {
@@ -13,5 +16,13 @@ public class IngressoMapper {
                 ingresso.getStatus().name(),
                 ingresso.getDataCompra()
         );
+    }
+
+    public static CompraIngressoResponseDTO toCompraResponse(List<Ingresso> ingressos) {
+        double valorTotal = Ingresso.calcularValorTotal(ingressos);
+        List<IngressoResponseDTO> lista = ingressos.stream()
+                .map(IngressoMapper::toResponse)
+                .toList();
+        return new CompraIngressoResponseDTO(lista, valorTotal);
     }
 }

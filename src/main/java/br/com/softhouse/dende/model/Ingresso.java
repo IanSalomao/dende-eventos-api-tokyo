@@ -4,6 +4,7 @@ import br.com.softhouse.dende.model.enums.StatusIngresso;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class Ingresso {
 
@@ -59,8 +60,13 @@ public class Ingresso {
         this.status = StatusIngresso.CANCELADO_PELO_EVENTO;
     }
 
-
     public boolean estaCancelado(){
         return this.status == StatusIngresso.CANCELADO;
+    }
+
+    public static double calcularValorTotal(List<Ingresso> ingressos) {
+        return ingressos.stream()
+                .mapToDouble(i -> i.getValorPago().doubleValue())
+                .sum();
     }
 }
