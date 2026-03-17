@@ -21,7 +21,7 @@ public abstract class Usuario {
         this.ativo = true;
     }
 
-    public Usuario(Long id, String nome, LocalDate dataNascimento, Sexo sexo, String email, String senha) {
+    public Usuario(String nome, LocalDate dataNascimento, Sexo sexo, String email, String senha) {
         this.nome = nome;
         this.dataNascimento = dataNascimento;
         this.sexo = sexo;

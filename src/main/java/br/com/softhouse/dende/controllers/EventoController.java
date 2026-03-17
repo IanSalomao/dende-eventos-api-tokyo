@@ -3,7 +3,8 @@ package br.com.softhouse.dende.controllers;
 import br.com.dende.softhouse.annotations.request.GetMapping;
 import br.com.dende.softhouse.annotations.request.RequestMapping;
 import br.com.dende.softhouse.process.route.ResponseEntity;
-import br.com.softhouse.dende.model.dto.EventoResponseDTO;
+import br.com.softhouse.dende.mappers.EventoMapper;
+import br.com.softhouse.dende.model.dto.response.EventoResponseDTO;
 import br.com.softhouse.dende.repositories.Repositorio;
 
 import java.util.List;
@@ -19,13 +20,8 @@ public class EventoController {
     @GetMapping
     public ResponseEntity<List<EventoResponseDTO>> feedEventos() {
         List<EventoResponseDTO> lista = repositorio.feedEventos()
-                .stream().map(evento -> new EventoResponseDTO(
-                        evento.getNome(),
-                        evento.getDescricao(),
-                        evento.getDataInicio(),
-                        evento.getDataFinal(),
-                        evento.getOrganizador().getNome()
-                ))
+                .stream()
+                .map(EventoMapper::toResponse)
                 .toList();
 
         return ResponseEntity.ok(lista);

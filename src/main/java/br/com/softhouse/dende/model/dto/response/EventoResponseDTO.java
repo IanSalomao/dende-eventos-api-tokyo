@@ -1,9 +1,6 @@
-package br.com.softhouse.dende.model.dto;
+package br.com.softhouse.dende.model.dto.response;
 
-import br.com.softhouse.dende.model.Evento;
-import br.com.softhouse.dende.model.UsuarioOrganizador;
 import br.com.softhouse.dende.model.enums.ModalidadeEvento;
-import br.com.softhouse.dende.model.enums.StatusEvento;
 import br.com.softhouse.dende.model.enums.TipoEvento;
 
 import java.math.BigDecimal;

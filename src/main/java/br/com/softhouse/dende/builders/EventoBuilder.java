@@ -1,4 +1,4 @@
-package br.com.softhouse.dende.model.builders;
+package br.com.softhouse.dende.builders;
 
 import br.com.softhouse.dende.model.Evento;
 import br.com.softhouse.dende.model.enums.ModalidadeEvento;

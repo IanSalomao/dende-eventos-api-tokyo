@@ -1,7 +1,7 @@
 package br.com.softhouse.dende.model;
 
 import br.com.softhouse.dende.model.dto.AlterarPerfilComumDTO;
-import br.com.softhouse.dende.model.dto.CompraIngressoDTO;
+import br.com.softhouse.dende.model.dto.response.CompraIngressoResponseDTO;
 import br.com.softhouse.dende.model.enums.Sexo;
 import br.com.softhouse.dende.model.enums.StatusIngresso;
 
@@ -20,8 +20,8 @@ public class UsuarioComum extends Usuario{
         super();
     }
 
-    public UsuarioComum(Long id, String nome, LocalDate dataNascimento, Sexo sexo, String email, String senha) {
-        super(id, nome, dataNascimento, sexo, email, senha);
+    public UsuarioComum(String nome, LocalDate dataNascimento, Sexo sexo, String email, String senha) {
+        super(nome, dataNascimento, sexo, email, senha);
     }
 
     public void alterarPerfil(AlterarPerfilComumDTO dto) {
@@ -66,15 +66,12 @@ public class UsuarioComum extends Usuario{
     }
 
 
-    public CompraIngressoDTO comprarIngresso(Evento evento) {
+    public List<Ingresso> comprarIngresso(Evento evento) {
         List<Ingresso> ingressosGerados = new ArrayList<>();
-
-        double valorTotal = 0.0;
 
         if (evento.getEventoPrincipal() != null) {
 
             Evento eventoPrincipal = evento.getEventoPrincipal();
-
             Ingresso ingressoPrincipal =
                     Ingresso.processarCompraIngresso(eventoPrincipal,
                             eventoPrincipal.getPrecoIngresso(),
@@ -83,9 +80,6 @@ public class UsuarioComum extends Usuario{
             ingressosGerados.add(ingressoPrincipal);
             this.ingressos.add(ingressoPrincipal);
             eventoPrincipal.adicionarIngresso(ingressoPrincipal);
-
-            valorTotal += eventoPrincipal.getPrecoIngresso().doubleValue();
-
         }
 
         Ingresso ingressoEvento =
@@ -97,9 +91,7 @@ public class UsuarioComum extends Usuario{
         evento.adicionarIngresso(ingressoEvento);
         this.ingressos.add(ingressoEvento);
 
-        valorTotal += evento.getPrecoIngresso().doubleValue();
-
-        return new CompraIngressoDTO(ingressosGerados, valorTotal);
+        return ingressosGerados;
     }
 
     @Override

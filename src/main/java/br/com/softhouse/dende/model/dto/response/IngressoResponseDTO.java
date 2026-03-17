@@ -1,4 +1,4 @@
-package br.com.softhouse.dende.model.dto;
+package br.com.softhouse.dende.model.dto.response;
 
 
 import java.math.BigDecimal;
