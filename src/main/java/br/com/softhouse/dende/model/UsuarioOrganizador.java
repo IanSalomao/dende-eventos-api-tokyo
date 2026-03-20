@@ -7,8 +7,9 @@ import br.com.softhouse.dende.model.enums.StatusEvento;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class UsuarioOrganizador extends Usuario {
 
@@ -19,10 +20,12 @@ public class UsuarioOrganizador extends Usuario {
         super();
     }
 
-    public UsuarioOrganizador(Long id, String nome, LocalDate dataNascimento, Sexo sexo, String email, String senha, Empresa empresa) {
-        super(id, nome, dataNascimento, sexo, email, senha);
+    public UsuarioOrganizador(String nome, LocalDate dataNascimento, Sexo sexo, String email, String senha, Empresa empresa) {
+        super(nome, dataNascimento, sexo, email, senha);
         this.empresa = empresa;
     }
+
+    public Empresa getEmpresa(){return empresa;}
 
 
     public void alterarPerfil(AlterarPerfilOrganizadorDTO dto) {
@@ -30,7 +33,8 @@ public class UsuarioOrganizador extends Usuario {
         if (dto.dataNascimento() != null) setDataNascimento(dto.dataNascimento());
         if (dto.sexo() != null) setSexo(dto.sexo());
         if (dto.senha() != null) setSenha(dto.senha());
-        if (dto.empresa() != null) this.empresa = dto.empresa();
+        if (dto.cnpj() != null || dto.razaoSocial() != null || dto.nomeFantasia() != null)
+            this.empresa = new Empresa(dto.cnpj(), dto.razaoSocial(), dto.nomeFantasia());
     }
 
     @Override
@@ -70,8 +74,12 @@ public class UsuarioOrganizador extends Usuario {
         evento.alterarDados(novosDados);
     }
 
-    public List<Evento> listarMeusEventos() {
-        return Collections.unmodifiableList(eventos);
+    public List<Evento> listarEventosOrganizador() {
+        return this.eventos.stream()
+                .sorted(Comparator
+                        .comparing(Evento::getDataInicio)
+                        .thenComparing(Evento::getNome, String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
     }
 
     @Override

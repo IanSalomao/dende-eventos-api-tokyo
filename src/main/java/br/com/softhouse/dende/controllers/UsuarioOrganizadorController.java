@@ -3,11 +3,15 @@ package br.com.softhouse.dende.controllers;
 import br.com.dende.softhouse.annotations.Controller;
 import br.com.dende.softhouse.annotations.request.*;
 import br.com.dende.softhouse.process.route.ResponseEntity;
+import br.com.softhouse.dende.mappers.EventoMapper;
+import br.com.softhouse.dende.mappers.UsuarioOrganizadorMapper;
 import br.com.softhouse.dende.model.Evento;
 import br.com.softhouse.dende.model.UsuarioComum;
 import br.com.softhouse.dende.model.UsuarioOrganizador;
 import br.com.softhouse.dende.model.dto.AlterarPerfilOrganizadorDTO;
-import br.com.softhouse.dende.model.dto.ListarEventoOrganizadorDTO;
+import br.com.softhouse.dende.model.dto.request.CadastrarEventoRequestDto;
+import br.com.softhouse.dende.model.dto.request.CadastrarUsuarioOrganizadorRequestDto;
+import br.com.softhouse.dende.model.dto.response.EventoOrganizadorResponseDTO;
 import br.com.softhouse.dende.model.dto.ReativarUsuarioDTO;
 import br.com.softhouse.dende.repositories.Repositorio;
 
@@ -28,23 +32,21 @@ public class UsuarioOrganizadorController {
     }
 
     @PostMapping
-    public ResponseEntity<String> cadastrarOrganizador(@RequestBody UsuarioOrganizador usuarioOrganizador) {
+    public ResponseEntity<String> cadastrarOrganizador(@RequestBody CadastrarUsuarioOrganizadorRequestDto dto) {
         try {
-            System.out.println(usuarioOrganizador);
-
-            repositorio.salvarUsuario(usuarioOrganizador);
-            return ResponseEntity.ok("Organizador " + usuarioOrganizador.getEmail() + " cadastrado com sucesso!");
+            UsuarioOrganizador organizador = UsuarioOrganizadorMapper.toModel(dto);
+            repositorio.salvarUsuario(organizador);
+            return ResponseEntity.ok("Organizador " + organizador.getEmail() + " cadastrado com sucesso!");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(400, e.getMessage());
         }
     }
 
-
     @GetMapping(path = "/{email}")
     public ResponseEntity<?> visualizarPerfil(@PathVariable(parameter = "email") String email) {
         UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
         if (organizador == null) return ResponseEntity.status(404, "Organizador nao encontrado.");
-        return ResponseEntity.ok(organizador.visualizarPerfil());
+        return ResponseEntity.ok(UsuarioOrganizadorMapper.toResponse(organizador));
     }
 
     @PutMapping(path = "/{email}")
@@ -93,11 +95,12 @@ public class UsuarioOrganizadorController {
     @PostMapping(path = "/{email}/eventos")
     public ResponseEntity<String> cadastrarEvento(
             @PathVariable(parameter = "email") String email,
-            @RequestBody Evento evento) {
+            @RequestBody CadastrarEventoRequestDto dto) {
         UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
         if (organizador == null) return ResponseEntity.status(404, "Organizador nao encontrado.");
         if (!organizador.isAtivo()) return ResponseEntity.status(400, "Organizador inativo nao pode cadastrar eventos.");
         try {
+            Evento evento = EventoMapper.toModel(dto);
             evento.validarInvariantes();
             organizador.cadastrarEvento(evento);
             repositorio.salvarEvento(evento);
@@ -129,23 +132,12 @@ public class UsuarioOrganizadorController {
         UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
         if (organizador == null) return ResponseEntity.status(404, "Organizador nao encontrado.");
 
-        List<ListarEventoOrganizadorDTO> resultado = organizador.listarMeusEventos().stream()
-                .map(e -> new ListarEventoOrganizadorDTO(
-                        e.getNome(),
-                        e.getDataInicio(),
-                        e.getDataFinal(),
-                        e.getPrecoIngresso(),
-                        e.getCapacidadeMaxima(),
-                        e.getLocalAcesso()
-                ))
-                .sorted(java.util.Comparator
-                        .comparing(ListarEventoOrganizadorDTO::dataInicio)
-                        .thenComparing(ListarEventoOrganizadorDTO::nome, String.CASE_INSENSITIVE_ORDER))
+        List<EventoOrganizadorResponseDTO> resultado = organizador.listarEventosOrganizador().stream()
+                .map(UsuarioOrganizadorMapper::toListarEventoOrganizadorDTO)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(resultado);
     }
-
 
     @PatchMapping(path = "/{email}/eventos/{eventoId}/{status}")
     public ResponseEntity<String> alterarStatusEvento(
@@ -153,7 +145,6 @@ public class UsuarioOrganizadorController {
             @PathVariable(parameter = "eventoId") Long eventoId,
             @PathVariable(parameter = "status") String status) {
         try {
-            UsuarioOrganizador organizador = repositorio.buscarOrganizadorPorEmail(email);
             Evento evento = repositorio.buscarEventoPorId(eventoId);
 
             if (!evento.getOrganizador().getEmail().equals(email)) {
@@ -161,18 +152,24 @@ public class UsuarioOrganizadorController {
             }
 
             switch (status.toLowerCase()) {
-                case "ativar" -> evento.ativarEvento();
+                case "ativar" -> {
+                    evento.ativarEvento();
+                    return ResponseEntity.ok("Evento ativado com sucesso!");
+                }
                 case "desativar" -> {
                     Map<UsuarioComum, BigDecimal> estornos = evento.desativarEvento();
+                    StringBuilder msg = new StringBuilder("Evento desativado com sucesso!");
                     estornos.forEach((usuario, valor) ->
-                            System.out.println("Estorno de R$ " + valor + " para " + usuario.getEmail())
+                            msg.append(" Estorno de R$ ")
+                                    .append(String.format("%.2f", valor))
+                                    .append(" para ")
+                                    .append(usuario.getEmail())
                     );
+                    return ResponseEntity.ok(msg.toString());
                 }
 
                 default -> throw new IllegalArgumentException("Status invalido. Use 'ativar' ou 'desativar'.");
             }
-
-            return ResponseEntity.ok("Evento " + status + " com sucesso!");
 
         } catch (IllegalStateException e) {
             return ResponseEntity.status(400, e.getMessage());

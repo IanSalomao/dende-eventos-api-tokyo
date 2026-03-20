@@ -3,13 +3,15 @@ package br.com.softhouse.dende.controllers;
 import br.com.dende.softhouse.annotations.Controller;
 import br.com.dende.softhouse.annotations.request.*;
 import br.com.dende.softhouse.process.route.ResponseEntity;
+import br.com.softhouse.dende.mappers.IngressoMapper;
+import br.com.softhouse.dende.mappers.UsuarioComumMapper;
 import br.com.softhouse.dende.model.Evento;
 import br.com.softhouse.dende.model.Ingresso;
 import br.com.softhouse.dende.model.Usuario;
 import br.com.softhouse.dende.model.UsuarioComum;
 import br.com.softhouse.dende.model.dto.AlterarPerfilComumDTO;
-import br.com.softhouse.dende.model.dto.CompraIngressoDTO;
-import br.com.softhouse.dende.model.dto.IngressoDTO;
+import br.com.softhouse.dende.model.dto.request.CadastrarUsuarioComumRequestDto;
+import br.com.softhouse.dende.model.dto.response.IngressoResponseDTO;
 import br.com.softhouse.dende.model.dto.ReativarUsuarioDTO;
 import br.com.softhouse.dende.repositories.Repositorio;
 
@@ -25,10 +27,11 @@ public class UsuarioComumController {
     }
 
     @PostMapping
-    public ResponseEntity<String> cadastrarUsuario(@RequestBody UsuarioComum usuarioComum) {
+    public ResponseEntity<String> cadastrarUsuario(@RequestBody CadastrarUsuarioComumRequestDto dto) {
         try {
-            repositorio.salvarUsuario(usuarioComum);
-            return ResponseEntity.ok("Usuario " + usuarioComum.getEmail() + " cadastrado com sucesso!");
+            UsuarioComum usuario = UsuarioComumMapper.toModel(dto);
+            repositorio.salvarUsuario(usuario);
+            return ResponseEntity.ok("Usuario " + usuario.getEmail() + " cadastrado com sucesso!");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(400, e.getMessage());
         }
@@ -36,9 +39,9 @@ public class UsuarioComumController {
 
     @GetMapping(path = "/{email}")
     public ResponseEntity<?> visualizarPerfil(@PathVariable(parameter = "email") String email) {
-        Usuario usuario = repositorio.buscarUsuarioComum(email);
-        if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
-        return ResponseEntity.ok(usuario.visualizarPerfil());
+        UsuarioComum usuario = repositorio.buscarUsuarioComum(email);
+        //if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
+        return ResponseEntity.ok(UsuarioComumMapper.toResponse(usuario));
     }
 
     @PutMapping(path = "/{email}")
@@ -46,7 +49,7 @@ public class UsuarioComumController {
             @PathVariable(parameter = "email") String email,
             @RequestBody AlterarPerfilComumDTO dto) {
         UsuarioComum usuario = repositorio.buscarUsuarioComum(email);
-        if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
+        //if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
         try {
             usuario.alterarPerfil(dto);
             return ResponseEntity.ok("Perfil de " + email + " atualizado com sucesso.");
@@ -58,7 +61,7 @@ public class UsuarioComumController {
     @PatchMapping(path = "/{email}/desativar")
     public ResponseEntity<String> desativarUsuario(@PathVariable(parameter = "email") String email) {
         Usuario usuario = repositorio.buscarUsuarioComum(email);
-        if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
+       // if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
         if (!usuario.isAtivo()) return ResponseEntity.status(400, "Usuario ja esta inativo.");
         try {
             usuario.desativarUsuario();
@@ -89,30 +92,13 @@ public class UsuarioComumController {
             @PathVariable(parameter = "email") String email,
             @PathVariable(parameter = "eventoId") Long eventoId) {
         try {
-            UsuarioComum usuario = repositorio.buscarUsuarioComumPorEmail(email);
+            UsuarioComum usuario = repositorio.buscarUsuarioComum(email);
             Evento evento = repositorio.buscarEventoPorId(eventoId);
 
-            CompraIngressoDTO compra = usuario.comprarIngresso(evento);
-            compra.ingressos().forEach(repositorio::salvarIngresso);
+            List<Ingresso> ingressos = usuario.comprarIngresso(evento);
+            ingressos.forEach(repositorio::salvarIngresso);
 
-            List<IngressoDTO> ingressosDTO = compra.ingressos()
-                    .stream()
-                    .map(i -> new IngressoDTO(
-                            i.getId(),
-                            i.getEvento().getNome(),
-                            i.getEvento().getDataInicio(),
-                            i.getValorPago(),
-                            i.getStatus().name(),
-                            i.getDataCompra()
-                    ))
-                    .toList();
-
-            return ResponseEntity.ok(
-                    new Object() {
-                        public final double valorTotal = compra.valorTotal();
-                        public final List<IngressoDTO> ingressos = ingressosDTO;
-                    }
-            );
+            return ResponseEntity.ok(IngressoMapper.toCompraResponse(ingressos));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(400, e.getMessage());
         } catch (IllegalArgumentException e) {
@@ -127,17 +113,10 @@ public class UsuarioComumController {
     public ResponseEntity<?> listarIngressos(
             @PathVariable(parameter = "email") String email) {
         try {
-            UsuarioComum usuario = repositorio.buscarUsuarioComumPorEmail(email);
-            List<IngressoDTO> lista = usuario.listarIngressos()
+            UsuarioComum usuario = repositorio.buscarUsuarioComum(email);
+            List<IngressoResponseDTO> lista = usuario.listarIngressos()
                     .stream()
-                    .map(i -> new IngressoDTO(
-                            i.getId(),
-                            i.getEvento().getNome(),
-                            i.getEvento().getDataInicio(),
-                            i.getValorPago(),
-                            i.getStatus().name(),
-                            i.getDataCompra()
-                    ))
+                    .map(IngressoMapper::toResponse)
                     .toList();
             return ResponseEntity.ok(lista);
         } catch (IllegalArgumentException e) {

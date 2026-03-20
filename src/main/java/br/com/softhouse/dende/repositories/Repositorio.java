@@ -19,7 +19,6 @@ public class Repositorio {
 
     private final AtomicLong eventoIdSequence = new AtomicLong(1);
     private long sequenciaIngressoId = 1L;
-    private long sequenciaEventoId = 1L;
 
     private Repositorio() {}
 
@@ -57,21 +56,23 @@ public class Repositorio {
 
     public UsuarioComum buscarUsuarioComum(String email) {
         Usuario usuario = usuarios.get(email);
-        if (usuario instanceof UsuarioComum usuarioComum) {
-            return usuarioComum;
-        }
-        return null;
+        if (usuario == null)
+            throw new IllegalArgumentException("Usuário não encontrado.");
+        if (!(usuario instanceof UsuarioComum usuarioComum))
+            throw new IllegalArgumentException("Usuário informado não é um usuário comum.");
+        return usuarioComum;
     }
 
     public UsuarioOrganizador buscarOrganizador(String email) {
         Usuario usuario = usuarios.get(email);
-        if (usuario instanceof UsuarioOrganizador organizador) {
-            return organizador;
-        }
-        return null;
+        if (usuario == null)
+            throw new IllegalArgumentException("Usuário não encontrado.");
+        if (!(usuario instanceof UsuarioOrganizador organizador))
+            throw new IllegalArgumentException("Usuário informado não é um organizador.");
+        return organizador;
     }
 
-    public Usuario buscarUsuarioPorEmail(String email) {
+   /** public Usuario buscarUsuarioPorEmail(String email) {
         Usuario usuario = usuarios.get(email);
         if (usuario == null) {
             throw new IllegalArgumentException("Usuário não encontrado.");
@@ -93,7 +94,7 @@ public class Repositorio {
             throw new IllegalArgumentException("Usuário informado não é um organizador.");
         }
         return (UsuarioOrganizador) usuario;
-    }
+    }**/
 
     /** ===================
      *        EVENTO
@@ -108,7 +109,7 @@ public class Repositorio {
 
     public Evento buscarEventoPorId(long id){
         Evento evento = eventos.get(id);
-        if (evento== null) {
+        if (evento == null) {
             throw new IllegalArgumentException("Evento não encontrado.");
         }
         return evento;
@@ -138,7 +139,6 @@ public class Repositorio {
         ingressos.put(sequenciaIngressoId, ingresso);
         sequenciaIngressoId++;
     }
-
 
 
     public Ingresso buscarIngressoPorId(long id) {
