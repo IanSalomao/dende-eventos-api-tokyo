@@ -44,31 +44,36 @@ public class UsuarioOrganizadorController {
 
     @GetMapping(path = "/{email}")
     public ResponseEntity<?> visualizarPerfil(@PathVariable(parameter = "email") String email) {
-        UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
-        if (organizador == null) return ResponseEntity.status(404, "Organizador nao encontrado.");
-        return ResponseEntity.ok(UsuarioOrganizadorMapper.toResponse(organizador));
+        try {
+            UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
+            return ResponseEntity.ok(UsuarioOrganizadorMapper.toResponse(organizador));
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("não encontrado"))
+                return ResponseEntity.status(404, e.getMessage());
+            return ResponseEntity.status(400, e.getMessage());
+        }
     }
 
     @PutMapping(path = "/{email}")
     public ResponseEntity<String> alterarOrganizador(
             @PathVariable(parameter = "email") String email,
             @RequestBody AlterarPerfilOrganizadorDTO dto) {
-        UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
-        if (organizador == null) return ResponseEntity.status(404, "Organizador nao encontrado.");
         try {
+            UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
             organizador.alterarPerfil(dto);
             return ResponseEntity.ok("Perfil de " + email + " atualizado com sucesso.");
         } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("não encontrado"))
+                return ResponseEntity.status(404, e.getMessage());
             return ResponseEntity.status(400, e.getMessage());
         }
     }
 
     @PatchMapping(path = "/{email}/desativar")
     public ResponseEntity<String> desativarOrganizador(@PathVariable(parameter = "email") String email) {
-        UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
-        if (organizador == null) return ResponseEntity.status(404, "Organizador nao encontrado.");
-        if (!organizador.isAtivo()) return ResponseEntity.status(400, "Organizador ja esta inativo.");
         try {
+            UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
+            if (!organizador.isAtivo()) return ResponseEntity.status(400, "Organizador ja esta inativo.");
             organizador.desativarUsuario();
             return ResponseEntity.ok("Organizador desativado com sucesso.");
         } catch (IllegalArgumentException e) {
@@ -80,10 +85,9 @@ public class UsuarioOrganizadorController {
     public ResponseEntity<String> reativarOrganizador(
             @PathVariable(parameter = "email") String email,
             @RequestBody ReativarUsuarioDTO body) {
-        UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
-        if (organizador == null) return ResponseEntity.status(404, "Organizador nao encontrado.");
-        if (organizador.isAtivo()) return ResponseEntity.status(400, "Organizador ja esta ativo.");
         try {
+            UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
+            if (organizador.isAtivo()) return ResponseEntity.status(400, "Organizador ja esta ativo.");
             String senha = (body != null) ? body.senha() : null;
             organizador.reativarUsuario(email, senha);
             return ResponseEntity.ok("Organizador reativado com sucesso.");
@@ -96,16 +100,17 @@ public class UsuarioOrganizadorController {
     public ResponseEntity<String> cadastrarEvento(
             @PathVariable(parameter = "email") String email,
             @RequestBody CadastrarEventoRequestDto dto) {
-        UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
-        if (organizador == null) return ResponseEntity.status(404, "Organizador nao encontrado.");
-        if (!organizador.isAtivo()) return ResponseEntity.status(400, "Organizador inativo nao pode cadastrar eventos.");
         try {
+            UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
+            if (!organizador.isAtivo()) return ResponseEntity.status(400, "Organizador inativo nao pode cadastrar eventos.");
             Evento evento = EventoMapper.toModel(dto);
             evento.validarInvariantes();
             organizador.cadastrarEvento(evento);
             repositorio.salvarEvento(evento);
             return ResponseEntity.ok("Evento '" + evento.getNome() + "' cadastrado com sucesso. ID: " + evento.getId());
         } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("não encontrado"))
+                return ResponseEntity.status(404, e.getMessage());
             return ResponseEntity.status(400, e.getMessage());
         }
     }
@@ -115,14 +120,14 @@ public class UsuarioOrganizadorController {
             @PathVariable(parameter = "email") String email,
             @PathVariable(parameter = "eventoId") long eventoId,
             @RequestBody Evento novosDados) {
-        UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
-        if (organizador == null) return ResponseEntity.status(404, "Organizador nao encontrado.");
         try {
+            UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
             repositorio.buscarEventoPorId(eventoId);
             organizador.alterarEvento(eventoId, novosDados);
             return ResponseEntity.ok("Evento alterado com sucesso.");
         } catch (IllegalArgumentException e) {
-            if (e.getMessage().contains("não encontrado")) return ResponseEntity.status(404, e.getMessage());
+            if (e.getMessage().contains("não encontrado"))
+                return ResponseEntity.status(404, e.getMessage());
             return ResponseEntity.status(400, e.getMessage());
         }
     }

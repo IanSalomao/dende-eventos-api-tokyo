@@ -39,9 +39,14 @@ public class UsuarioComumController {
 
     @GetMapping(path = "/{email}")
     public ResponseEntity<?> visualizarPerfil(@PathVariable(parameter = "email") String email) {
-        UsuarioComum usuario = repositorio.buscarUsuarioComum(email);
-        //if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
-        return ResponseEntity.ok(UsuarioComumMapper.toResponse(usuario));
+        try {
+            UsuarioComum usuario = repositorio.buscarUsuarioComum(email);
+            return ResponseEntity.ok(UsuarioComumMapper.toResponse(usuario));
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("não encontrado"))
+                return ResponseEntity.status(404, e.getMessage());
+            return ResponseEntity.status(400, e.getMessage());
+        }
     }
 
     @PutMapping(path = "/{email}")
@@ -49,7 +54,7 @@ public class UsuarioComumController {
             @PathVariable(parameter = "email") String email,
             @RequestBody AlterarPerfilComumDTO dto) {
         UsuarioComum usuario = repositorio.buscarUsuarioComum(email);
-        //if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
+        if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
         try {
             usuario.alterarPerfil(dto);
             return ResponseEntity.ok("Perfil de " + email + " atualizado com sucesso.");
@@ -60,13 +65,14 @@ public class UsuarioComumController {
 
     @PatchMapping(path = "/{email}/desativar")
     public ResponseEntity<String> desativarUsuario(@PathVariable(parameter = "email") String email) {
-        Usuario usuario = repositorio.buscarUsuarioComum(email);
-       // if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
-        if (!usuario.isAtivo()) return ResponseEntity.status(400, "Usuario ja esta inativo.");
         try {
+            Usuario usuario = repositorio.buscarUsuarioComum(email);
+            if (!usuario.isAtivo()) return ResponseEntity.status(400, "Usuario ja esta inativo.");
             usuario.desativarUsuario();
             return ResponseEntity.ok("Usuario desativado com sucesso.");
         } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("não encontrado"))
+                return ResponseEntity.status(404, e.getMessage());
             return ResponseEntity.status(400, e.getMessage());
         }
     }
@@ -75,11 +81,10 @@ public class UsuarioComumController {
     public ResponseEntity<String> reativarUsuario(
             @PathVariable(parameter = "email") String email,
             @RequestBody ReativarUsuarioDTO body) {
-        Usuario usuario = repositorio.buscarUsuarioComum(email);
-        if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
-        if (usuario.isAtivo()) return ResponseEntity.status(400, "Usuario ja esta ativo.");
-        try {
-            String senha = (body != null) ? body.senha() : null;
+       try {
+           Usuario usuario = repositorio.buscarUsuarioComum(email);
+           if (usuario.isAtivo()) return ResponseEntity.status(400, "Usuario ja esta ativo.");
+           String senha = (body != null) ? body.senha() : null;
             usuario.reativarUsuario(email, senha);
             return ResponseEntity.ok("Usuario reativado com sucesso.");
         } catch (IllegalArgumentException e) {

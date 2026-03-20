@@ -16,7 +16,6 @@ public class Repositorio {
     private final Map<Long, Ingresso> ingressos = new HashMap<>();
     private final Map<Long, Evento> eventos = new HashMap<>();
 
-
     private final AtomicLong eventoIdSequence = new AtomicLong(1);
     private long sequenciaIngressoId = 1L;
 
@@ -72,29 +71,6 @@ public class Repositorio {
         return organizador;
     }
 
-   /** public Usuario buscarUsuarioPorEmail(String email) {
-        Usuario usuario = usuarios.get(email);
-        if (usuario == null) {
-            throw new IllegalArgumentException("Usuário não encontrado.");
-        }
-        return usuario;
-    }
-
-    public UsuarioComum buscarUsuarioComumPorEmail(String email) {
-        Usuario usuario = buscarUsuarioPorEmail(email);
-        if (!(usuario instanceof UsuarioComum)) {
-            throw new IllegalArgumentException("Usuário informado não é um usuário comum.");
-        }
-        return (UsuarioComum) usuario;
-    }
-
-    public UsuarioOrganizador buscarOrganizadorPorEmail(String email) {
-        Usuario usuario = buscarUsuarioPorEmail(email);
-        if (!(usuario instanceof UsuarioOrganizador)) {
-            throw new IllegalArgumentException("Usuário informado não é um organizador.");
-        }
-        return (UsuarioOrganizador) usuario;
-    }**/
 
     /** ===================
      *        EVENTO
@@ -148,6 +124,4 @@ public class Repositorio {
         }
         return ingresso;
     }
-
-
 }
