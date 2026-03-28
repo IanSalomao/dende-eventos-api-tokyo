@@ -67,9 +67,10 @@ public class UsuarioComumController {
     public ResponseEntity<String> desativarUsuario(@PathVariable(parameter = "email") String email) {
         try {
             Usuario usuario = repositorio.buscarUsuarioComum(email);
-            if (!usuario.isAtivo()) return ResponseEntity.status(400, "Usuario ja esta inativo.");
             usuario.desativarUsuario();
             return ResponseEntity.ok("Usuario desativado com sucesso.");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(400, e.getMessage());
         } catch (IllegalArgumentException e) {
             if (e.getMessage().contains("não encontrado"))
                 return ResponseEntity.status(404, e.getMessage());
@@ -83,11 +84,12 @@ public class UsuarioComumController {
             @RequestBody ReativarUsuarioDTO body) {
        try {
            Usuario usuario = repositorio.buscarUsuarioComum(email);
-           if (usuario.isAtivo()) return ResponseEntity.status(400, "Usuario ja esta ativo.");
            String senha = (body != null) ? body.senha() : null;
             usuario.reativarUsuario(email, senha);
             return ResponseEntity.ok("Usuario reativado com sucesso.");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
+           return ResponseEntity.status(400, e.getMessage());
+       }catch (IllegalArgumentException e) {
             return ResponseEntity.status(400, e.getMessage());
         }
     }

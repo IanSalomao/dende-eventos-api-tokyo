@@ -38,10 +38,12 @@ public abstract class Usuario {
     }
 
     public void desativarUsuario() {
+        if (!this.ativo) throw new IllegalStateException("Usuario ja esta inativo.");
         this.ativo = false;
     }
 
     public void reativarUsuario(String email, String senha) {
+        if (this.ativo) throw new IllegalStateException("Usuario ja esta ativo.");
         if (!this.email.equals(email) || !this.senha.equals(senha)) {
             throw new IllegalArgumentException("E-mail ou senha incorretos.");
         }
