@@ -17,11 +17,23 @@ public abstract class Usuario {
     private String senha;
     private Boolean ativo;
 
-    public Usuario() {
+    protected Usuario() {
         this.ativo = true;
     }
 
     public Usuario(String nome, LocalDate dataNascimento, Sexo sexo, String email, String senha) {
+        if (nome == null || nome.isBlank())
+            throw new IllegalArgumentException("Nome não pode ser nulo ou vazio.");
+        if (email == null || email.isBlank() || !email.contains("@"))
+            throw new IllegalArgumentException("E-mail inválido.");
+        if (senha == null || senha.isBlank())
+            throw new IllegalArgumentException("Senha não pode ser nula ou vazia.");
+        if (dataNascimento == null)
+            throw new IllegalArgumentException("Data de nascimento não pode ser nula.");
+        if (dataNascimento.isAfter(LocalDate.now()))
+            throw new IllegalArgumentException("Data de nascimento não pode ser futura.");
+        if (sexo == null)
+            throw new IllegalArgumentException("Sexo não pode ser nulo.");
         this.nome = nome;
         this.dataNascimento = dataNascimento;
         this.sexo = sexo;

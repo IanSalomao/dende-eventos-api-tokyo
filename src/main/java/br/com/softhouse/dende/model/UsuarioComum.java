@@ -2,18 +2,14 @@ package br.com.softhouse.dende.model;
 
 import br.com.softhouse.dende.model.dto.AlterarPerfilComumDTO;
 import br.com.softhouse.dende.model.enums.Sexo;
-import br.com.softhouse.dende.model.enums.StatusIngresso;
+import br.com.softhouse.dende.repositories.Repositorio;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class UsuarioComum extends Usuario{
-
-    private List<Ingresso> ingressos = new ArrayList<>();
+public class UsuarioComum extends Usuario {
 
     public UsuarioComum() {
         super();
@@ -30,67 +26,24 @@ public class UsuarioComum extends Usuario{
         if (dto.senha() != null) setSenha(dto.senha());
     }
 
-    /**
-     * Lista todos os ingressos do usuário ordenados por:
-     * 1. Status: eventos ativos não realizados primeiro, cancelados/finalizados por último
-     * 2. Data de início do evento
-     * 3. Nome do evento (ordem alfabética)
-     */
-    public List<Ingresso> listarIngressos() {
-        LocalDateTime agora = LocalDateTime.now();
-
-        return this.ingressos.stream()
-                .sorted(Comparator
-                        // Primeiro: eventos ativos e não realizados (prioridade 0)
-                        // Último: eventos cancelados ou finalizados (prioridade 1)
-                        .comparing((Ingresso ingresso) -> {
-                            Evento evento = ingresso.getEvento();
-                            boolean eventoAtivo = evento.estaAtivo();
-                            boolean eventoJaRealizado = evento.getDataInicio().isBefore(agora);
-                            boolean ingressoCancelado = ingresso.estaCancelado();
-                            boolean eventoCancelado = ingresso.getStatus() == StatusIngresso.CANCELADO_PELO_EVENTO;
-
-                            // Se ingresso cancelado OU evento inativo OU já realizado -> vai pro final
-                            if (ingressoCancelado || !eventoAtivo || eventoJaRealizado ||eventoCancelado) {
-                                return 1;
-                            }
-                            // Caso contrário, vai pro início
-                            return 0;
-                        })
-                        // Segundo: ordena por data de início do evento
-                        .thenComparing(ingresso -> ingresso.getEvento().getDataInicio())
-                        // Terceiro: ordena por nome do evento (alfabética)
-                        .thenComparing(ingresso -> ingresso.getEvento().getNome())
-                ).collect(Collectors.toList());
+    public List<Ingresso> solicitarIngresso(Evento evento) {
+        return evento.processarCompraIngresso(this);
     }
 
+    public List<Ingresso> listarIngressos() {
+        List<Ingresso> todos = Repositorio.getInstance().buscarIngressosPorUsuario(this);
 
-    public List<Ingresso> comprarIngresso(Evento evento) {
-        List<Ingresso> ingressosGerados = new ArrayList<>();
-
-        if (evento.getEventoPrincipal() != null) {
-
-            Evento eventoPrincipal = evento.getEventoPrincipal();
-            Ingresso ingressoPrincipal =
-                    Ingresso.processarCompraIngresso(eventoPrincipal,
-                            eventoPrincipal.getPrecoIngresso(),
-                            this);
-
-            ingressosGerados.add(ingressoPrincipal);
-            this.ingressos.add(ingressoPrincipal);
-            eventoPrincipal.adicionarIngresso(ingressoPrincipal);
-        }
-
-        Ingresso ingressoEvento =
-                Ingresso.processarCompraIngresso(evento,
-                        evento.getPrecoIngresso(),
-                        this);
-
-        ingressosGerados.add(ingressoEvento);
-        evento.adicionarIngresso(ingressoEvento);
-        this.ingressos.add(ingressoEvento);
-
-        return ingressosGerados;
+        return todos.stream()
+                .sorted(Comparator
+                        .comparingInt((Ingresso ingresso) -> {
+                            boolean ingressoAtivo = ingresso.getStatus() == br.com.softhouse.dende.model.enums.StatusIngresso.ATIVO;
+                            boolean eventoAtivo = ingresso.getEvento().estaAtivo();
+                            return (ingressoAtivo && eventoAtivo) ? 0 : 1;
+                        })
+                        .thenComparing(ingresso -> ingresso.getEvento().getDataInicio())
+                        .thenComparing(ingresso -> ingresso.getEvento().getNome())
+                )
+                .collect(Collectors.toList());
     }
 
     @Override

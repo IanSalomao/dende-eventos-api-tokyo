@@ -124,4 +124,10 @@ public class Repositorio {
         }
         return ingresso;
     }
+
+    public List<Ingresso> buscarIngressosPorUsuario(UsuarioComum usuario) {
+        return ingressos.values().stream()
+                .filter(i -> i.getUsuario().equals(usuario))
+                .toList();
+    }
 }

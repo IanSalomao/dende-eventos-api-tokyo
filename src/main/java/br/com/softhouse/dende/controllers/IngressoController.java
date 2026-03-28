@@ -41,7 +41,7 @@ public class IngressoController {
             UsuarioComum usuario = repositorio.buscarUsuarioComum(email);
             Evento evento = repositorio.buscarEventoPorId(eventoId);
 
-            List<Ingresso> ingressos = usuario.comprarIngresso(evento);
+            List<Ingresso> ingressos = usuario.solicitarIngresso(evento);
             ingressos.forEach(repositorio::salvarIngresso);
 
             return ResponseEntity.ok(IngressoMapper.toCompraResponse(ingressos));
@@ -73,7 +73,7 @@ public class IngressoController {
         }
     }
 
-    @PutMapping(path = "/usuario/{email}/ingresso/{ingressoId}/cancelar")
+    @PutMapping(path = "/{ingressoId}/usuario/{email}/cancelar")
     public ResponseEntity<String> cancelarIngresso(
             @PathVariable(parameter = "email") String email,
             @PathVariable(parameter = "ingressoId") Long ingressoId) {
@@ -84,10 +84,10 @@ public class IngressoController {
                 return ResponseEntity.status(403, "Ingresso não pertence a este usuário.");
             }
 
-            double valorEstorno = ingresso.cancelarIngresso();
+            java.math.BigDecimal valorEstorno = ingresso.cancelarIngresso();
 
             String mensagem = "Ingresso cancelado com sucesso!";
-            if (valorEstorno > 0) {
+            if (valorEstorno.compareTo(java.math.BigDecimal.ZERO) > 0) {
                 mensagem += " Valor de estorno: R$ " + String.format("%.2f", valorEstorno);
             } else {
                 mensagem += " Sem estorno disponível.";

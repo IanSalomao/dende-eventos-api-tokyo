@@ -1,7 +1,8 @@
 package br.com.softhouse.dende.model.enums;
 
 public enum StatusEvento {
+    INATIVO,
     ATIVO,
-    INATIVO
-
+    CANCELADO,
+    ENCERRADO
 }

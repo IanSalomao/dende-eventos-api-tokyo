@@ -6,12 +6,12 @@ import br.com.softhouse.dende.model.enums.StatusIngresso;
 import br.com.softhouse.dende.model.enums.TipoEvento;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class Evento {
     private long id;
@@ -31,7 +31,7 @@ public class Evento {
     private Evento eventoPrincipal;
     private UsuarioOrganizador usuarioOrganizador;
 
-    private List<Ingresso> ingressos = new ArrayList<>();
+    private final List<Ingresso> ingressos = new ArrayList<>();
 
     public Evento(
             final String nome,
@@ -61,6 +61,7 @@ public class Evento {
         this.permiteEstorno = permiteEstorno;
         this.taxaEstorno = taxaEstorno;
         this.eventoPrincipal = eventoPrincipal;
+        this.status = StatusEvento.INATIVO;
 
         validarInvariantes();
     }
@@ -68,105 +69,65 @@ public class Evento {
     public Evento() {
     }
 
-    public String getNome() {
-        return nome;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public String getPaginaEvento() {
-        return paginaEvento;
-    }
-
-    public LocalDateTime getDataInicio() {
-        return dataInicio;
-    }
-
-    public LocalDateTime getDataFinal() {
-        return dataFinal;
-    }
-
-    public TipoEvento getTipo() {
-        return tipo;
-    }
-
-    public ModalidadeEvento getModalidade() {
-        return modalidade;
-    }
-
-    public Integer getCapacidadeMaxima() {
-        return capacidadeMaxima;
-    }
-
-    public String getLocalAcesso() {
-        return localAcesso;
-    }
-
-    public StatusEvento getStatus() {
-        return status;
-    }
-
-    public BigDecimal getPrecoIngresso() {
-        return precoIngresso;
-    }
-
-    public Boolean isPermiteEstorno() {
-        return permiteEstorno;
-    }
-
-    public BigDecimal getTaxaEstorno() {
-        return taxaEstorno;
-    }
-
-    public Evento getEventoPrincipal() {
-        return eventoPrincipal;
-    }
-
-    public UsuarioOrganizador getOrganizador() {
-        return usuarioOrganizador;
-    }
+    public String getNome() { return nome; }
+    public String getDescricao() { return descricao; }
+    public long getId() { return id; }
+    public String getPaginaEvento() { return paginaEvento; }
+    public LocalDateTime getDataInicio() { return dataInicio; }
+    public LocalDateTime getDataFinal() { return dataFinal; }
+    public TipoEvento getTipo() { return tipo; }
+    public ModalidadeEvento getModalidade() { return modalidade; }
+    public Integer getCapacidadeMaxima() { return capacidadeMaxima; }
+    public String getLocalAcesso() { return localAcesso; }
+    public StatusEvento getStatus() { return status; }
+    public BigDecimal getPrecoIngresso() { return precoIngresso; }
+    public Boolean isPermiteEstorno() { return permiteEstorno; }
+    public BigDecimal getTaxaEstorno() { return taxaEstorno; }
+    public Evento getEventoPrincipal() { return eventoPrincipal; }
+    public UsuarioOrganizador getOrganizador() { return usuarioOrganizador; }
+    public List<Ingresso> getIngressos() { return Collections.unmodifiableList(ingressos); }
 
     public void atribuirId(final long id) {
         if (this.id == 0) this.id = id;
     }
 
     private void validarDatas(LocalDateTime dataInicio, LocalDateTime dataFinal) {
-
         if (dataInicio == null || dataFinal == null)
             throw new IllegalArgumentException("Datas e Horários não podem ser nulos.");
         if (dataInicio.isBefore(LocalDateTime.now()))
-            throw new IllegalArgumentException("Data e horário iniciais não podem ser antetiores as atuais");
-
+            throw new IllegalArgumentException("Data e horário iniciais não podem ser anteriores aos atuais.");
         long duracaoMinutos = Duration.between(dataInicio, dataFinal).toMinutes();
         if (duracaoMinutos < 0)
-            throw new IllegalArgumentException("Data e horário finais não podem ser antriores a data e horário iniciais.");
-        if (duracaoMinutos < 30) throw new IllegalArgumentException("Evento não pode durar menos de 30 min.");
+            throw new IllegalArgumentException("Data e horário finais não podem ser anteriores à data e horário iniciais.");
+        if (duracaoMinutos < 30)
+            throw new IllegalArgumentException("Evento não pode durar menos de 30 min.");
     }
 
     private void validarNome(String nome) {
-        if (nome == null || nome.trim().isEmpty()) throw new IllegalArgumentException("Nome não pode ser vazio");
+        if (nome == null || nome.trim().isEmpty())
+            throw new IllegalArgumentException("Nome não pode ser vazio.");
     }
 
     private void validarCapacidade(Integer capacidade) {
         if (capacidade != null && capacidade <= 0)
-            throw new IllegalArgumentException("Capacidade não pode ser negativa ou igual a zero");
+            throw new IllegalArgumentException("Capacidade não pode ser negativa ou igual a zero.");
     }
 
     private void validarPreco(BigDecimal preco) {
-        if (preco != null && preco.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Preço não pode ser negativo ou nulo.");
-        }
+        if (preco != null && preco.compareTo(BigDecimal.ZERO) < 0)
+            throw new IllegalArgumentException("Preço não pode ser negativo.");
     }
 
     private void validarLocalAcesso(String localAcesso) {
         if (localAcesso == null || localAcesso.trim().isEmpty())
-            throw new IllegalArgumentException("Local de acesso não pode ser vazio");
+            throw new IllegalArgumentException("Local de acesso não pode ser vazio.");
+    }
+
+    private void validarDisponibilidade() {
+        if (this.status != StatusEvento.ATIVO)
+            throw new IllegalStateException("Evento não está ativo. Status atual: " + this.status);
+        if (calcularVagasDisponiveis() <= 0)
+            throw new IllegalStateException("Evento sem vagas disponíveis.");
     }
 
     public void validarInvariantes() {
@@ -178,17 +139,37 @@ public class Evento {
         validarLocalAcesso(this.localAcesso);
     }
 
-    public void atribuirOrganizador(UsuarioOrganizador usuarioOrganizador) {
-        if (this.usuarioOrganizador != null) throw new IllegalArgumentException("Esse evento já possui organizador");
 
+    public List<Ingresso> processarCompraIngresso(UsuarioComum usuario) {
+        validarDisponibilidade();
+
+        if (this.eventoPrincipal != null) {
+            eventoPrincipal.validarDisponibilidade();
+
+            Ingresso ingressoSub = Ingresso.criar(this, usuario, this.precoIngresso);
+            Ingresso ingressoPrincipal = Ingresso.criar(eventoPrincipal, usuario, eventoPrincipal.getPrecoIngresso());
+
+            this.adicionarIngresso(ingressoSub);
+            eventoPrincipal.adicionarIngresso(ingressoPrincipal);
+
+            return List.of(ingressoSub, ingressoPrincipal);
+        }
+
+        Ingresso ingresso = Ingresso.criar(this, usuario, this.precoIngresso);
+        this.adicionarIngresso(ingresso);
+        return List.of(ingresso);
+    }
+
+
+    public void atribuirOrganizador(UsuarioOrganizador usuarioOrganizador) {
+        if (this.usuarioOrganizador != null)
+            throw new IllegalArgumentException("Esse evento já possui organizador.");
         this.usuarioOrganizador = usuarioOrganizador;
     }
 
     public void alterarDados(Evento novosDados) {
-
-        if (this.status != StatusEvento.ATIVO) {
+        if (this.status != StatusEvento.ATIVO)
             throw new IllegalArgumentException("Apenas eventos ativos podem ser alterados. Status atual: " + this.status);
-        }
 
         LocalDateTime novoHorarioInicio = (novosDados.getDataInicio() != null) ? novosDados.getDataInicio() : this.dataInicio;
         LocalDateTime novoHorarioFim = (novosDados.getDataFinal() != null) ? novosDados.getDataFinal() : this.dataFinal;
@@ -197,44 +178,20 @@ public class Evento {
 
         validarDatas(novoHorarioInicio, novoHorarioFim);
 
-        if (novoPermiteEstorno != null && !novoPermiteEstorno && novaTaxaEstorno != null) {
+        if (novoPermiteEstorno != null && !novoPermiteEstorno && novaTaxaEstorno != null)
             throw new IllegalArgumentException("Não é permitido definir taxa de estorno para eventos que não permitem estorno.");
-        }
 
         this.dataInicio = novoHorarioInicio;
         this.dataFinal = novoHorarioFim;
-
-        if (novosDados.getNome() != null) {
-            this.nome = novosDados.getNome();
-        }
-        if (novosDados.getCapacidadeMaxima() != null) {
-            this.capacidadeMaxima = novosDados.getCapacidadeMaxima();
-        }
-        if (novosDados.getDescricao() != null) {
-            this.descricao = novosDados.getDescricao();
-        }
-        if (novosDados.getEventoPrincipal() != null) {
-            this.eventoPrincipal = novosDados.getEventoPrincipal();
-        }
-        if (novosDados.getLocalAcesso() != null) {
-            this.localAcesso = novosDados.getLocalAcesso();
-        }
-        if (novosDados.getModalidade() != null) {
-            this.modalidade = novosDados.getModalidade();
-        }
-        if (novosDados.getPaginaEvento() != null) {
-            this.paginaEvento = novosDados.getPaginaEvento();
-        }
-        if (novosDados.getPrecoIngresso() != null) {
-            this.precoIngresso = novosDados.getPrecoIngresso();
-        }
-        if (novosDados.getTipo() != null) {
-            this.tipo = novosDados.getTipo();
-        }
-        if (novosDados.getPrecoIngresso() != null) {
-            this.precoIngresso = novosDados.getPrecoIngresso();
-        }
-
+        if (novosDados.getNome() != null) this.nome = novosDados.getNome();
+        if (novosDados.getCapacidadeMaxima() != null) this.capacidadeMaxima = novosDados.getCapacidadeMaxima();
+        if (novosDados.getDescricao() != null) this.descricao = novosDados.getDescricao();
+        if (novosDados.getEventoPrincipal() != null) this.eventoPrincipal = novosDados.getEventoPrincipal();
+        if (novosDados.getLocalAcesso() != null) this.localAcesso = novosDados.getLocalAcesso();
+        if (novosDados.getModalidade() != null) this.modalidade = novosDados.getModalidade();
+        if (novosDados.getPaginaEvento() != null) this.paginaEvento = novosDados.getPaginaEvento();
+        if (novosDados.getPrecoIngresso() != null) this.precoIngresso = novosDados.getPrecoIngresso();
+        if (novosDados.getTipo() != null) this.tipo = novosDados.getTipo();
         this.permiteEstorno = novoPermiteEstorno;
         this.taxaEstorno = novaTaxaEstorno;
     }
@@ -243,51 +200,69 @@ public class Evento {
         this.ingressos.add(ingresso);
     }
 
-    public int calcularVagasDisponiveis(){
-        long ativos = this.ingressos.stream()
-                .filter(i -> i.getStatus() == StatusIngresso.ATIVO)
-                .count();
-            return this.capacidadeMaxima - (int) ativos;
-    }
-
-    public boolean estaAtivo(){
-        return this.status == StatusEvento.ATIVO;
-    }
-
-    public double calcularValorEstorno(Ingresso ingresso) {
-        if (permiteEstorno == null || !permiteEstorno) {
-            return 0;
-        }
-        if (taxaEstorno == null) {
-            return ingresso.getValorPago().doubleValue();
-        }
-        double valor = ingresso.getValorPago().doubleValue();
-        return valor - (valor * this.taxaEstorno.doubleValue());
-    }
-
     public void ativarEvento() {
-        if (this.status == StatusEvento.ATIVO) {
+        if (this.status == StatusEvento.ATIVO)
             throw new IllegalStateException("Evento já está ativo.");
-        }
+        if (this.status == StatusEvento.CANCELADO)
+            throw new IllegalStateException("Evento cancelado não pode ser reativado.");
+        if (this.status == StatusEvento.ENCERRADO)
+            throw new IllegalStateException("Evento encerrado não pode ser reativado.");
         validarDatas(this.dataInicio, this.dataFinal);
         this.status = StatusEvento.ATIVO;
     }
 
-    public Map<UsuarioComum, BigDecimal> desativarEvento() {
-        if (this.status != StatusEvento.ATIVO) {
+    public void desativarEvento() {
+        if (this.status != StatusEvento.ATIVO)
             throw new IllegalStateException("Evento não está ativo.");
-        }
-
         this.status = StatusEvento.INATIVO;
+        cancelarTodosIngressos();
+    }
 
-        Map<UsuarioComum, BigDecimal> estornos = new HashMap<>();
+    public void cancelarEvento() {
+        if (this.status == StatusEvento.CANCELADO)
+            throw new IllegalStateException("Evento já está cancelado.");
+        if (this.status == StatusEvento.ENCERRADO)
+            throw new IllegalStateException("Evento encerrado não pode ser cancelado.");
+        this.status = StatusEvento.CANCELADO;
+        cancelarTodosIngressos();
+    }
+
+    public void encerrarEvento() {
+        if (this.status != StatusEvento.ATIVO)
+            throw new IllegalStateException("Apenas eventos ativos podem ser encerrados.");
+        if (LocalDateTime.now().isBefore(this.dataFinal))
+            throw new IllegalStateException("Evento só pode ser encerrado após sua data de término.");
+        this.status = StatusEvento.ENCERRADO;
+    }
+
+    private void cancelarTodosIngressos() {
         for (Ingresso ingresso : ingressos) {
             if (ingresso.getStatus() == StatusIngresso.ATIVO) {
-                double valorEstorno = ingresso.getEvento().calcularValorEstorno(ingresso);
-                estornos.put(ingresso.getUsuario(), BigDecimal.valueOf(valorEstorno));
                 ingresso.cancelarPorEvento();
             }
         }
-        return estornos;
+    }
+
+
+    public int calcularVagasDisponiveis() {
+        long ativos = this.ingressos.stream()
+                .filter(i -> i.getStatus() == StatusIngresso.ATIVO)
+                .count();
+        return this.capacidadeMaxima - (int) ativos;
+    }
+
+    public boolean estaAtivo() {
+        return this.status == StatusEvento.ATIVO;
+    }
+
+    public BigDecimal calcularValorEstorno(Ingresso ingresso) {
+        if (permiteEstorno == null || !permiteEstorno)
+            return BigDecimal.ZERO;
+        if (taxaEstorno == null || taxaEstorno.compareTo(BigDecimal.ZERO) == 0)
+            return ingresso.getValorPago();
+        BigDecimal fator = BigDecimal.ONE.subtract(
+                taxaEstorno.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP)
+        );
+        return ingresso.getValorPago().multiply(fator).setScale(2, RoundingMode.HALF_UP);
     }
 }

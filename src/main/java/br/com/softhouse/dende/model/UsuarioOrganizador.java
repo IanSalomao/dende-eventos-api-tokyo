@@ -5,7 +5,6 @@ import br.com.softhouse.dende.model.enums.Sexo;
 import br.com.softhouse.dende.model.enums.StatusEvento;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -39,14 +38,13 @@ public class UsuarioOrganizador extends Usuario {
 
     @Override
     public void desativarUsuario() {
-        LocalDateTime agora = LocalDateTime.now();
-        boolean impedido = eventos.stream().anyMatch(e ->
-                e.getStatus() == StatusEvento.ATIVO &&
-                        e.getDataFinal().isAfter(agora)
-        );
-        if (impedido)
-            throw new IllegalArgumentException("Não é possível desativar a conta com eventos ativos ou em execução.");
+        if (temEventosAtivos())
+            throw new IllegalStateException("Não é possível desativar a conta com eventos ativos.");
         super.desativarUsuario();
+    }
+
+    private boolean temEventosAtivos() {
+        return eventos.stream().anyMatch(e -> e.getStatus() == StatusEvento.ATIVO);
     }
 
     @Override

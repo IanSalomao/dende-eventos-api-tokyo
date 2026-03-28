@@ -19,7 +19,7 @@ public class IngressoMapper {
     }
 
     public static CompraIngressoResponseDTO toCompraResponse(List<Ingresso> ingressos) {
-        double valorTotal = Ingresso.calcularValorTotal(ingressos);
+        java.math.BigDecimal valorTotal = Ingresso.calcularValorTotal(ingressos);
         List<IngressoResponseDTO> lista = ingressos.stream()
                 .map(IngressoMapper::toResponse)
                 .toList();

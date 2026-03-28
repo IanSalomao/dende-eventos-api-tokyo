@@ -6,7 +6,6 @@ import br.com.dende.softhouse.process.route.ResponseEntity;
 import br.com.softhouse.dende.mappers.EventoMapper;
 import br.com.softhouse.dende.mappers.UsuarioOrganizadorMapper;
 import br.com.softhouse.dende.model.Evento;
-import br.com.softhouse.dende.model.UsuarioComum;
 import br.com.softhouse.dende.model.UsuarioOrganizador;
 import br.com.softhouse.dende.model.dto.AlterarPerfilOrganizadorDTO;
 import br.com.softhouse.dende.model.dto.request.CadastrarEventoRequestDto;
@@ -15,9 +14,7 @@ import br.com.softhouse.dende.model.dto.response.EventoOrganizadorResponseDTO;
 import br.com.softhouse.dende.model.dto.ReativarUsuarioDTO;
 import br.com.softhouse.dende.repositories.Repositorio;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -76,7 +73,11 @@ public class UsuarioOrganizadorController {
             if (!organizador.isAtivo()) return ResponseEntity.status(400, "Organizador ja esta inativo.");
             organizador.desativarUsuario();
             return ResponseEntity.ok("Organizador desativado com sucesso.");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(400, e.getMessage());
         } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("não encontrado"))
+                return ResponseEntity.status(404, e.getMessage());
             return ResponseEntity.status(400, e.getMessage());
         }
     }
@@ -162,18 +163,19 @@ public class UsuarioOrganizadorController {
                     return ResponseEntity.ok("Evento ativado com sucesso!");
                 }
                 case "desativar" -> {
-                    Map<UsuarioComum, BigDecimal> estornos = evento.desativarEvento();
-                    StringBuilder msg = new StringBuilder("Evento desativado com sucesso!");
-                    estornos.forEach((usuario, valor) ->
-                            msg.append(" Estorno de R$ ")
-                                    .append(String.format("%.2f", valor))
-                                    .append(" para ")
-                                    .append(usuario.getEmail())
-                    );
-                    return ResponseEntity.ok(msg.toString());
+                    evento.desativarEvento();
+                    return ResponseEntity.ok("Evento desativado com sucesso! Ingressos ativos foram cancelados.");
+                }
+                case "cancelar" -> {
+                    evento.cancelarEvento();
+                    return ResponseEntity.ok("Evento cancelado com sucesso! Ingressos ativos foram cancelados.");
+                }
+                case "encerrar" -> {
+                    evento.encerrarEvento();
+                    return ResponseEntity.ok("Evento encerrado com sucesso!");
                 }
 
-                default -> throw new IllegalArgumentException("Status invalido. Use 'ativar' ou 'desativar'.");
+                default -> throw new IllegalArgumentException("Status invalido. Use 'ativar', 'desativar', 'cancelar' ou 'encerrar'.");
             }
 
         } catch (IllegalStateException e) {
