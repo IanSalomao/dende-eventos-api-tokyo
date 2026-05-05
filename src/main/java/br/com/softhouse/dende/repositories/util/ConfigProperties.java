@@ -1,28 +1,28 @@
-package repositories.util;
+package br.com.softhouse.dende.repositories.util;
 
-import br.com.dende.softhouse.annotation.Value;
+import br.com.dende.softhouse.annotations.Value;
 
 public class ConfigProperties {
 
-    @Value("datasource.url")
+    @Value(key = "datasource.url")
     private String url;
 
-    @Value("datasource.username")
+    @Value(key = "datasource.username")
     private String username;
 
-    @Value("datasource.password")
+    @Value(key = "datasource.password")
     private String password;
 
-    @Value("datasource.driver-class-name")
+    @Value(key = "datasource.driver-class-name")
     private String driverClassName;
 
-    @Value("datasource.hikari.maximum-pool-size")
+    @Value(key = "datasource.hikari.maximum-pool-size")
     private int maximumPoolSize;
 
-    @Value("datasource.hikari.minimum-idle")
+    @Value(key = "datasource.hikari.minimum-idle")
     private int minimumIdle;
 
-    @Value("datasource.hikari.connection-timeout")
+    @Value(key = "datasource.hikari.connection-timeout")
     private long connectionTimeout;
 
     public String getUrl() { return url; }

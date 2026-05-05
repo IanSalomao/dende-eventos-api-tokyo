@@ -1,4 +1,4 @@
-package repositories.util;
+package br.com.softhouse.dende.repositories.util;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
