@@ -82,6 +82,9 @@ public abstract class Usuario {
     public String getEmail() { return email; }
     public void setSenha(String senha) { this.senha = senha; }
     public String getSenha() {return senha;}
+    protected void setEmail(String email) {
+        this.email = email;
+    }
 
     @Override
     public boolean equals(Object object) {
@@ -100,4 +103,6 @@ public abstract class Usuario {
     public String toString() {
         return "Usuario{ nome='" + nome + "', email='" + email + "', ativo=" + ativo + '}';
     }
+
+
 }

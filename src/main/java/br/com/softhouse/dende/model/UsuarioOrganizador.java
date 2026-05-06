@@ -19,6 +19,12 @@ public class UsuarioOrganizador extends Usuario {
         super();
     }
 
+
+    public UsuarioOrganizador(String email) {
+        super();
+        this.setEmail(email);
+    }
+
     public UsuarioOrganizador(String nome, LocalDate dataNascimento, Sexo sexo, String email, String senha, Empresa empresa) {
         super(nome, dataNascimento, sexo, email, senha);
         this.empresa = empresa;
