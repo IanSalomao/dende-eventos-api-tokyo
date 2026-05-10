@@ -64,10 +64,10 @@ public class EventoRepositoryImpl implements CrudRepository<Evento, Long> {
             }
 
         } catch (SQLException e) {
-            throw new EventoNaoEncontradoException(id);
+            throw new OperacaoNaoPermitidaException("Erro ao buscar evento: " + e.getMessage());
         }
 
-        return null;
+        throw new EventoNaoEncontradoException(id);
     }
 
     @Override
@@ -180,7 +180,11 @@ public class EventoRepositoryImpl implements CrudRepository<Evento, Long> {
     }
 
     public List<Evento> findFeedPublico(TipoEvento tipo, ModalidadeEvento modalidade, String nomeParcial) {
-        StringBuilder sql = new StringBuilder("SELECT * FROM eventos WHERE status = 'ATIVO'");
+        StringBuilder sql = new StringBuilder(
+            "SELECT * FROM eventos WHERE status = 'ATIVO' AND data_final > NOW() " +
+            "AND (capacidade_maxima IS NULL OR " +
+            "(SELECT COUNT(*) FROM ingressos WHERE evento_id = eventos.id AND status = 'ATIVO') < capacidade_maxima)"
+        );
 
         if (tipo != null)         sql.append(" AND tipo = ?");
         if (modalidade != null)   sql.append(" AND modalidade = ?");

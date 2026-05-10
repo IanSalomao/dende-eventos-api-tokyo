@@ -186,6 +186,35 @@ public class IngressoRepositoryImpl implements CrudRepository<Ingresso, Long> {
         return ingressos;
     }
 
+    public int countAtivosByEvento(Long eventoId) {
+        String sql = "SELECT COUNT(*) FROM ingressos WHERE evento_id = ? AND status = 'ATIVO'";
+        try (Connection conn = ConnectionPool.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, eventoId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            throw new OperacaoNaoPermitidaException("Erro ao contar ingressos ativos: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    public void cancelarAtivosByEvento(Long eventoId) {
+        String sql = "UPDATE ingressos SET status = 'CANCELADO_PELO_EVENTO' WHERE evento_id = ? AND status = 'ATIVO'";
+        try (Connection conn = ConnectionPool.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, eventoId);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new OperacaoNaoPermitidaException("Erro ao cancelar ingressos do evento: " + e.getMessage());
+        }
+    }
+
     public void saveAll(List<Ingresso> ingressos) {
         String sql = """
                 INSERT INTO ingressos (valor_pago, status, data_compra, evento_id, usuario_email)

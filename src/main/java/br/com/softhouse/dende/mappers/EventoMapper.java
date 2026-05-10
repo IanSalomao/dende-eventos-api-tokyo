@@ -4,16 +4,10 @@ import br.com.softhouse.dende.builders.EventoBuilder;
 import br.com.softhouse.dende.model.Evento;
 import br.com.softhouse.dende.model.dto.request.CadastrarEventoRequestDto;
 import br.com.softhouse.dende.model.dto.response.EventoResponseDTO;
-import br.com.softhouse.dende.repositories.Repositorio;
 
 public class EventoMapper {
 
-    public static Evento toModel(CadastrarEventoRequestDto dto){
-        Evento eventoPrincipal = null;
-        if(dto.eventoPrincipalId() != null){
-            eventoPrincipal = Repositorio.getInstance().buscarEventoPorId(dto.eventoPrincipalId());
-        }
-
+    public static Evento toModel(CadastrarEventoRequestDto dto, Evento eventoPrincipal) {
         return new EventoBuilder()
                 .nome(dto.nome())
                 .descricao(dto.descricao())
