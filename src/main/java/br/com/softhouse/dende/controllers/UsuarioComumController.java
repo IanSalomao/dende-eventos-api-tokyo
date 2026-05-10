@@ -13,25 +13,28 @@ import br.com.softhouse.dende.model.dto.AlterarPerfilComumDTO;
 import br.com.softhouse.dende.model.dto.request.CadastrarUsuarioComumRequestDto;
 import br.com.softhouse.dende.model.dto.response.IngressoResponseDTO;
 import br.com.softhouse.dende.model.dto.ReativarUsuarioDTO;
-import br.com.softhouse.dende.repositories.Repositorio;
-
+import br.com.softhouse.dende.repositories.UsuarioRepositoryImpl;
+import br.com.softhouse.dende.exceptions.EmailJaCadastradoException;
+import br.com.softhouse.dende.exceptions.UsuarioNaoEncontradoException;
 import java.util.List;
 
 @Controller
 @RequestMapping(path = "/usuarios")
 public class UsuarioComumController {
-    private final Repositorio repositorio;
+    private final UsuarioRepositoryImpl usuarioRepository;
 
     public UsuarioComumController(){
-        this.repositorio = Repositorio.getInstance();
+        this.usuarioRepository = new UsuarioRepositoryImpl();
     }
 
     @PostMapping
     public ResponseEntity<String> cadastrarUsuario(@RequestBody CadastrarUsuarioComumRequestDto dto) {
         try {
             UsuarioComum usuario = UsuarioComumMapper.toModel(dto);
-            repositorio.salvarUsuario(usuario);
+            usuarioRepository.save(usuario);
             return ResponseEntity.ok("Usuario " + usuario.getEmail() + " cadastrado com sucesso!");
+        } catch (EmailJaCadastradoException e) {
+            return ResponseEntity.status(409, e.getMessage());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(400, e.getMessage());
         }
@@ -40,12 +43,13 @@ public class UsuarioComumController {
     @GetMapping(path = "/{email}")
     public ResponseEntity<?> visualizarPerfil(@PathVariable(parameter = "email") String email) {
         try {
-            UsuarioComum usuario = repositorio.buscarUsuarioComum(email);
-            return ResponseEntity.ok(UsuarioComumMapper.toResponse(usuario));
-        } catch (IllegalArgumentException e) {
-            if (e.getMessage().contains("não encontrado"))
-                return ResponseEntity.status(404, e.getMessage());
-            return ResponseEntity.status(400, e.getMessage());
+            Usuario usuario = usuarioRepository.findById(email);
+            if (usuario == null || !(usuario instanceof UsuarioComum usuarioComum)) {
+                throw new UsuarioNaoEncontradoException(email);
+            }
+            return ResponseEntity.ok(UsuarioComumMapper.toResponse(usuarioComum));
+        } catch (UsuarioNaoEncontradoException e) {
+            return ResponseEntity.status(404, e.getMessage());
         }
     }
 
@@ -53,11 +57,16 @@ public class UsuarioComumController {
     public ResponseEntity<String> alterarUsuario(
             @PathVariable(parameter = "email") String email,
             @RequestBody AlterarPerfilComumDTO dto) {
-        UsuarioComum usuario = repositorio.buscarUsuarioComum(email);
-        if (usuario == null) return ResponseEntity.status(404, "Usuario nao encontrado.");
         try {
-            usuario.alterarPerfil(dto);
+            Usuario usuario = usuarioRepository.findById(email);
+            if (usuario == null || !(usuario instanceof UsuarioComum usuarioComum)) {
+                throw new UsuarioNaoEncontradoException(email);
+            }
+            usuarioComum.alterarPerfil(dto);
+            usuarioRepository.update(usuarioComum);
             return ResponseEntity.ok("Perfil de " + email + " atualizado com sucesso.");
+        } catch (UsuarioNaoEncontradoException e) {
+            return ResponseEntity.status(404, e.getMessage());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(400, e.getMessage());
         }
@@ -66,14 +75,16 @@ public class UsuarioComumController {
     @PatchMapping(path = "/{email}/desativar")
     public ResponseEntity<String> desativarUsuario(@PathVariable(parameter = "email") String email) {
         try {
-            Usuario usuario = repositorio.buscarUsuarioComum(email);
-            usuario.desativarUsuario();
+            Usuario usuario = usuarioRepository.findById(email);
+            if (usuario == null || !(usuario instanceof UsuarioComum usuarioComum)) {
+                throw new UsuarioNaoEncontradoException(email);
+            }
+            usuarioComum.desativarUsuario();
+            usuarioRepository.update(usuarioComum);
             return ResponseEntity.ok("Usuario desativado com sucesso.");
+        } catch (UsuarioNaoEncontradoException e) {
+            return ResponseEntity.status(404, e.getMessage());
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(400, e.getMessage());
-        } catch (IllegalArgumentException e) {
-            if (e.getMessage().contains("não encontrado"))
-                return ResponseEntity.status(404, e.getMessage());
             return ResponseEntity.status(400, e.getMessage());
         }
     }
@@ -82,14 +93,20 @@ public class UsuarioComumController {
     public ResponseEntity<String> reativarUsuario(
             @PathVariable(parameter = "email") String email,
             @RequestBody ReativarUsuarioDTO body) {
-       try {
-           Usuario usuario = repositorio.buscarUsuarioComum(email);
-           String senha = (body != null) ? body.senha() : null;
-            usuario.reativarUsuario(email, senha);
+        try {
+            Usuario usuario = usuarioRepository.findById(email);
+            if (usuario == null || !(usuario instanceof UsuarioComum usuarioComum)) {
+                throw new UsuarioNaoEncontradoException(email);
+            }
+            String senha = (body != null) ? body.senha() : null;
+            usuarioComum.reativarUsuario(email, senha);
+            usuarioRepository.update(usuarioComum);
             return ResponseEntity.ok("Usuario reativado com sucesso.");
+        } catch (UsuarioNaoEncontradoException e) {
+            return ResponseEntity.status(404, e.getMessage());
         } catch (IllegalStateException e) {
-           return ResponseEntity.status(400, e.getMessage());
-       }catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400, e.getMessage());
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(400, e.getMessage());
         }
     }
