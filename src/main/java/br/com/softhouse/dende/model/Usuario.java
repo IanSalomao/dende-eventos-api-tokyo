@@ -81,6 +81,7 @@ public abstract class Usuario {
     public void setSexo(Sexo sexo) { this.sexo = sexo; }
     public String getEmail() { return email; }
     public void setSenha(String senha) { this.senha = senha; }
+    public String getSenha() {return senha;}
 
     @Override
     public boolean equals(Object object) {
