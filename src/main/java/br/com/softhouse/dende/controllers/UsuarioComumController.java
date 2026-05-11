@@ -16,7 +16,6 @@ import br.com.softhouse.dende.model.dto.ReativarUsuarioDTO;
 import br.com.softhouse.dende.repositories.UsuarioRepositoryImpl;
 import br.com.softhouse.dende.exceptions.EmailJaCadastradoException;
 import br.com.softhouse.dende.exceptions.UsuarioNaoEncontradoException;
-import java.util.List;
 
 @Controller
 @RequestMapping(path = "/usuarios")
