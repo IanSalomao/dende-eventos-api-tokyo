@@ -2,8 +2,6 @@ package br.com.softhouse.dende.model;
 
 import br.com.softhouse.dende.model.dto.AlterarPerfilComumDTO;
 import br.com.softhouse.dende.model.enums.Sexo;
-import br.com.softhouse.dende.repositories.Repositorio;
-
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -30,9 +28,7 @@ public class UsuarioComum extends Usuario {
         return evento.processarCompraIngresso(this);
     }
 
-    public List<Ingresso> listarIngressos() {
-        List<Ingresso> todos = Repositorio.getInstance().buscarIngressosPorUsuario(this);
-
+    public List<Ingresso> listarIngressos(List<Ingresso> todos) {
         return todos.stream()
                 .sorted(Comparator
                         .comparingInt((Ingresso ingresso) -> {

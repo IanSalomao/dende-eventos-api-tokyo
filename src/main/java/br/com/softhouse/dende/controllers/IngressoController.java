@@ -69,9 +69,8 @@ public class IngressoController {
             return ResponseEntity.ok(IngressoMapper.toCompraResponse(ingressos));
         } catch (EventoNaoEncontradoException | UsuarioNaoEncontradoException e) {
             return ResponseEntity.status(404, e.getMessage());
-        } catch (CapacidadeExcedidaException | OperacaoNaoPermitidaException e) {
-            return ResponseEntity.status(400, e.getMessage());
-        } catch (IllegalArgumentException | IllegalStateException e) {
+        } catch (CapacidadeExcedidaException | OperacaoNaoPermitidaException | IllegalArgumentException |
+                 IllegalStateException e) {
             return ResponseEntity.status(400, e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(500, "Erro interno: " + e.getMessage());
