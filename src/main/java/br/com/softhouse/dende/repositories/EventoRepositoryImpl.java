@@ -336,38 +336,19 @@ public class EventoRepositoryImpl implements CrudRepository<Evento, Long> {
 
             evento.atribuirId(rs.getLong("id"));
 
-            // organizador: carregado de forma shallow (só email)
             String emailOrganizador = rs.getString("organizador_email");
             if (emailOrganizador != null) {
                 UsuarioOrganizador organizador = new UsuarioOrganizador(emailOrganizador);
                 evento.atribuirOrganizador(organizador);
             }
 
-            // restaura status persistido (o construtor sempre cria como INATIVO)
             restaurarStatus(evento, status);
 
             return evento;
         }
 
-        /**
-         * O construtor de Evento força status = INATIVO.
-         * Este método usa os métodos de domínio para restaurar
-         * o status salvo no banco sem violar as regras de negócio
-         * (ativar/cancelar/encerrar já contêm suas próprias guards).
-         */
         private void restaurarStatus(Evento evento, StatusEvento statusPersistido) {
-            switch (statusPersistido) {
-                case ATIVO      -> evento.ativarEvento();
-                case CANCELADO  -> evento.cancelarEvento();
-                case ENCERRADO  -> {
-                    evento.ativarEvento();
-                    // encerrarEvento() exige dataFinal no passado; aqui apenas restauramos
-                    // o estado sem re-validar a data — forçamos via reflexão seria frágil,
-                    // então deixamos ATIVO e documentamos a limitação.
-                    // Alternativa: adicionar um método package-private setStatus() no modelo.
-                }
-                case INATIVO    -> { /* já é o default do construtor */ }
-            }
+            evento.setStatusParaRestauracao(statusPersistido);
         }
     }
 }

@@ -265,4 +265,8 @@ public class Evento {
         );
         return ingresso.getValorPago().multiply(fator).setScale(2, RoundingMode.HALF_UP);
     }
+
+    public void setStatusParaRestauracao(StatusEvento status) {
+        this.status = status;
+    }
 }
