@@ -96,7 +96,7 @@ public class UsuarioOrganizadorController {
             if (temEventosAtivos)
                 throw new OperacaoNaoPermitidaException("Não é possível desativar a conta com eventos ativos.");
 
-            organizador.desativarUsuario();
+            ((Usuario) organizador).desativarUsuario();
             usuarioRepository.update(organizador);
             return ResponseEntity.ok("Organizador desativado com sucesso.");
         } catch (UsuarioNaoEncontradoException e) {

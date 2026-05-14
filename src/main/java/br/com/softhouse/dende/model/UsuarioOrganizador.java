@@ -19,7 +19,6 @@ public class UsuarioOrganizador extends Usuario {
         super();
     }
 
-
     public UsuarioOrganizador(String email) {
         super();
         this.setEmail(email);
@@ -49,7 +48,7 @@ public class UsuarioOrganizador extends Usuario {
         super.desativarUsuario();
     }
 
-    private boolean temEventosAtivos() {
+    boolean temEventosAtivos() {
         return eventos.stream().anyMatch(e -> e.getStatus() == StatusEvento.ATIVO);
     }
 

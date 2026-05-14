@@ -98,7 +98,6 @@ public class EmpresaRepositoryImpl implements CrudRepository<Empresa, String> {
         }
     }
 
-    // RowMapper como classe interna estática
     private static class EmpresaRowMapper implements RowMapper<Empresa> {
         @Override
         public Empresa mapRow(ResultSet rs) throws SQLException {

@@ -65,7 +65,7 @@ public class IngressoRepositoryImpl implements CrudRepository<Ingresso, Long> {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return new IngressoRowMapper().mapRow(rs);
+                    return new IngressoRowMapper(eventoRepository, usuarioRepository).mapRow(rs);
                 }
             }
 
@@ -85,7 +85,7 @@ public class IngressoRepositoryImpl implements CrudRepository<Ingresso, Long> {
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
-            IngressoRowMapper mapper = new IngressoRowMapper();
+            IngressoRowMapper mapper = new IngressoRowMapper(eventoRepository, usuarioRepository);
             while (rs.next()) {
                 ingressos.add(mapper.mapRow(rs));
             }
@@ -150,7 +150,7 @@ public class IngressoRepositoryImpl implements CrudRepository<Ingresso, Long> {
             stmt.setString(1, emailUsuario);
 
             try (ResultSet rs = stmt.executeQuery()) {
-                IngressoRowMapper mapper = new IngressoRowMapper();
+                IngressoRowMapper mapper = new IngressoRowMapper(eventoRepository, usuarioRepository);
                 while (rs.next()) {
                     ingressos.add(mapper.mapRow(rs));
                 }
@@ -173,7 +173,7 @@ public class IngressoRepositoryImpl implements CrudRepository<Ingresso, Long> {
             stmt.setLong(1, eventoId);
 
             try (ResultSet rs = stmt.executeQuery()) {
-                IngressoRowMapper mapper = new IngressoRowMapper();
+                IngressoRowMapper mapper = new IngressoRowMapper(eventoRepository, usuarioRepository);
                 while (rs.next()) {
                     ingressos.add(mapper.mapRow(rs));
                 }
@@ -260,7 +260,15 @@ public class IngressoRepositoryImpl implements CrudRepository<Ingresso, Long> {
 
 
 
-    private class IngressoRowMapper implements RowMapper<Ingresso> {
+    private static class IngressoRowMapper implements RowMapper<Ingresso> {
+
+        private final EventoRepositoryImpl eventoRepository;
+        private final UsuarioRepositoryImpl usuarioRepository;
+
+        IngressoRowMapper(EventoRepositoryImpl eventoRepository, UsuarioRepositoryImpl usuarioRepository) {
+            this.eventoRepository = eventoRepository;
+            this.usuarioRepository = usuarioRepository;
+        }
 
         @Override
         public Ingresso mapRow(ResultSet rs) throws SQLException {

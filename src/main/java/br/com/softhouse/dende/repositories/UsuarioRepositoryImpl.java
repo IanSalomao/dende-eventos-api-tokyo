@@ -149,7 +149,7 @@ public class UsuarioRepositoryImpl implements CrudRepository<Usuario, String> {
         }
     }
 
-    private class UsuarioRowMapper implements RowMapper<Usuario> {
+    private static class UsuarioRowMapper implements RowMapper<Usuario> {
 
         @Override
         public Usuario mapRow(ResultSet rs) throws SQLException {
@@ -172,6 +172,9 @@ public class UsuarioRepositoryImpl implements CrudRepository<Usuario, String> {
 
                 String cnpj = rs.getString("empresa_cnpj");
                 Empresa empresa = null;
+                if (cnpj != null) {
+                    empresa = new EmpresaRepositoryImpl().findById(cnpj);
+                }
 
                 UsuarioOrganizador organizador = new UsuarioOrganizador(nome, dataNascimento, sexo, email, senha, empresa);
                 if (!ativo) organizador.desativarUsuario();

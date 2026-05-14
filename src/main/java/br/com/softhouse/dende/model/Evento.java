@@ -245,10 +245,15 @@ public class Evento {
 
 
     public int calcularVagasDisponiveis() {
+        if (this.capacidadeMaxima == null) return Integer.MAX_VALUE;
         long ativos = this.ingressos.stream()
                 .filter(i -> i.getStatus() == StatusIngresso.ATIVO)
                 .count();
         return this.capacidadeMaxima - (int) ativos;
+    }
+
+    public void restaurarStatus(StatusEvento statusPersistido) {
+        this.status = statusPersistido;
     }
 
     public boolean estaAtivo() {
@@ -264,9 +269,5 @@ public class Evento {
                 taxaEstorno.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP)
         );
         return ingresso.getValorPago().multiply(fator).setScale(2, RoundingMode.HALF_UP);
-    }
-
-    public void setStatusParaRestauracao(StatusEvento status) {
-        this.status = status;
     }
 }

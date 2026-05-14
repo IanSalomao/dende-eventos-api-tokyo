@@ -72,12 +72,10 @@ public class IngressoController {
         } catch (CapacidadeExcedidaException | OperacaoNaoPermitidaException | IllegalArgumentException |
                  IllegalStateException e) {
             return ResponseEntity.status(400, e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(500, "Erro interno: " + e.getMessage());
         }
     }
 
-    @GetMapping(path = "/{email}")
+    @GetMapping(path = "/usuario/{email}")
     public ResponseEntity<?> listarIngressos(
             @PathVariable(parameter = "email") String email) {
         try {

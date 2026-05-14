@@ -181,9 +181,9 @@ public class EventoRepositoryImpl implements CrudRepository<Evento, Long> {
 
     public List<Evento> findFeedPublico(TipoEvento tipo, ModalidadeEvento modalidade, String nomeParcial) {
         StringBuilder sql = new StringBuilder(
-            "SELECT * FROM eventos WHERE status = 'ATIVO' AND data_final > NOW() " +
-            "AND (capacidade_maxima IS NULL OR " +
-            "(SELECT COUNT(*) FROM ingressos WHERE evento_id = eventos.id AND status = 'ATIVO') < capacidade_maxima)"
+                "SELECT * FROM eventos WHERE status = 'ATIVO' AND data_final > NOW() " +
+                        "AND (capacidade_maxima IS NULL OR " +
+                        "(SELECT COUNT(*) FROM ingressos WHERE evento_id = eventos.id AND status = 'ATIVO') < capacidade_maxima)"
         );
 
         if (tipo != null)         sql.append(" AND tipo = ?");
@@ -310,7 +310,6 @@ public class EventoRepositoryImpl implements CrudRepository<Evento, Long> {
             boolean permiteEstornoRaw = rs.getBoolean("permite_estorno");
             Boolean permiteEstorno = rs.wasNull() ? null : permiteEstornoRaw;
 
-            // evento principal: carregado de forma shallow (só id) para evitar recursão infinita
             long eventoPrincipalId = rs.getLong("evento_principal_id");
             Evento eventoPrincipal = null;
             if (!rs.wasNull()) {
@@ -348,7 +347,7 @@ public class EventoRepositoryImpl implements CrudRepository<Evento, Long> {
         }
 
         private void restaurarStatus(Evento evento, StatusEvento statusPersistido) {
-            evento.setStatusParaRestauracao(statusPersistido);
+            evento.restaurarStatus(statusPersistido);
         }
     }
 }
