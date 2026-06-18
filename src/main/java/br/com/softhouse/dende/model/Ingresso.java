@@ -32,6 +32,10 @@ public class Ingresso {
     public Long getId() {return this.id;}
     public void setId(Long id) { this.id = id; }
 
+    // [AVALIAÇÃO - Item 1] O nome 'processarCompraIngresso' é verboso e genérico.
+    // O método é uma factory que valida pré-condições e cria uma nova instância de Ingresso.
+    // Sugestão: um nome mais direto seria 'criar' ou 'comprar'.
+    // Código sugerido: public static Ingresso criar(Evento evento, BigDecimal valorPago, UsuarioComum usuario)
     public static Ingresso processarCompraIngresso(Evento evento, BigDecimal valorPago, UsuarioComum usuario){
         if (!evento.estaAtivo())
             throw new IllegalStateException("Evento não está ativo.");
@@ -42,6 +46,12 @@ public class Ingresso {
         return new Ingresso(evento, valorPago, usuario);
     }
 
+    // [AVALIAÇÃO - Item 14] O método retorna 'double' para representar valor financeiro de estorno.
+    // Sugestão: altere para BigDecimal.
+    // Código sugerido: public BigDecimal cancelarIngresso()
+    // [AVALIAÇÃO - Item 7] O método lança IllegalStateException se chamado num ingresso já cancelado,
+    // tornando a operação NÃO idempotente. Uma alternativa mais robusta seria retornar BigDecimal.ZERO
+    // silenciosamente se já cancelado, ou usar um código de status de retorno específico.
     public double cancelarIngresso(){
         if(this.status == StatusIngresso.CANCELADO){
             throw new IllegalStateException("Ingresso já está cancelado.");
@@ -60,6 +70,11 @@ public class Ingresso {
     }
 
 
+    // [AVALIAÇÃO - Item 8] O método estaCancelado() verifica apenas o status CANCELADO,
+    // ignorando CANCELADO_PELO_EVENTO. Em listarIngressos() do UsuarioComum, o ingresso
+    // com status CANCELADO_PELO_EVENTO não será tratado como cancelado por este método.
+    // Sugestão: inclua ambos os status:
+    // return this.status == StatusIngresso.CANCELADO || this.status == StatusIngresso.CANCELADO_PELO_EVENTO;
     public boolean estaCancelado(){
         return this.status == StatusIngresso.CANCELADO;
     }

@@ -27,9 +27,14 @@ public class UsuarioOrganizadorController {
         this.repositorio = Repositorio.getInstance();
     }
 
+    // [AVALIAÇÃO - Item 9] O método retorna 200 OK para criação de recurso.
+    // Para operações de criação (POST), o status correto é 201 Created.
+    // Código sugerido: return ResponseEntity.status(201, "Organizador " + usuarioOrganizador.getEmail() + " cadastrado com sucesso!");
     @PostMapping
     public ResponseEntity<String> cadastrarOrganizador(@RequestBody UsuarioOrganizador usuarioOrganizador) {
         try {
+            // [AVALIAÇÃO] System.out.println() deixado no código de produção é um code smell.
+            // Sugestão: remova esta linha ou substitua por um logger adequado (ex: Logger do java.util.logging ou SLF4J).
             System.out.println(usuarioOrganizador);
 
             repositorio.salvarUsuario(usuarioOrganizador);
@@ -40,6 +45,9 @@ public class UsuarioOrganizadorController {
     }
 
 
+    // [AVALIAÇÃO - Item 8] O método retorna organizador.visualizarPerfil(), que é uma String formatada.
+    // Uma API REST deveria retornar objetos estruturados (DTO/JSON), não Strings concatenadas manualmente.
+    // Sugestão: crie um OrganizadorPerfilDTO com os campos necessários e retorne ResponseEntity.ok(dto).
     @GetMapping(path = "/{email}")
     public ResponseEntity<?> visualizarPerfil(@PathVariable(parameter = "email") String email) {
         UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
@@ -61,6 +69,9 @@ public class UsuarioOrganizadorController {
         }
     }
 
+    // [AVALIAÇÃO - Item 9] Quando o organizador já está inativo, retorna 400 (Bad Request).
+    // Um conflito de estado seria melhor representado por 409 (Conflict).
+    // Código sugerido: return ResponseEntity.status(409, "Organizador ja esta inativo.");
     @PatchMapping(path = "/{email}/desativar")
     public ResponseEntity<String> desativarOrganizador(@PathVariable(parameter = "email") String email) {
         UsuarioOrganizador organizador = repositorio.buscarOrganizador(email);
@@ -90,6 +101,9 @@ public class UsuarioOrganizadorController {
         }
     }
 
+    // [AVALIAÇÃO - Item 9] O método retorna 200 OK para criação de evento.
+    // Para operações de criação (POST), o status correto é 201 Created.
+    // Código sugerido: return ResponseEntity.status(201, "Evento '" + evento.getNome() + "' cadastrado com sucesso. ID: " + evento.getId());
     @PostMapping(path = "/{email}/eventos")
     public ResponseEntity<String> cadastrarEvento(
             @PathVariable(parameter = "email") String email,
@@ -98,6 +112,10 @@ public class UsuarioOrganizadorController {
         if (organizador == null) return ResponseEntity.status(404, "Organizador nao encontrado.");
         if (!organizador.isAtivo()) return ResponseEntity.status(400, "Organizador inativo nao pode cadastrar eventos.");
         try {
+            // [AVALIAÇÃO - Item 6] A chamada a evento.validarInvariantes() no controller é redundante,
+            // pois o construtor de Evento já chama validarInvariantes() internamente.
+            // A validação de regras de negócio deve ficar centralizada na entidade, não no controller.
+            // Sugestão: remova esta linha; a validação já ocorre na criação do objeto.
             evento.validarInvariantes();
             organizador.cadastrarEvento(evento);
             repositorio.salvarEvento(evento);
@@ -147,6 +165,13 @@ public class UsuarioOrganizadorController {
     }
 
 
+    // [AVALIAÇÃO - Item 9] A ação (ativar/desativar) é passada como variável de path ({status}).
+    // Uma abordagem mais RESTful seria ter dois endpoints separados:
+    // @PatchMapping("/{email}/eventos/{eventoId}/ativar") e @PatchMapping("/{email}/eventos/{eventoId}/desativar")
+    // ou usar um request body com o novo status desejado.
+    // [AVALIAÇÃO - Item 1] O nome do parâmetro 'status' não deixa claro que é uma ação (verbo).
+    // Sugestão: renomeie para 'acao' para deixar explícito que é um comando.
+    // Código sugerido: @PathVariable(parameter = "acao") String acao
     @PatchMapping(path = "/{email}/eventos/{eventoId}/{status}")
     public ResponseEntity<String> alterarStatusEvento(
             @PathVariable(parameter = "email") String email,
@@ -164,6 +189,9 @@ public class UsuarioOrganizadorController {
                 case "ativar" -> evento.ativarEvento();
                 case "desativar" -> {
                     Map<UsuarioComum, BigDecimal> estornos = evento.desativarEvento();
+                    // [AVALIAÇÃO] Os estornos são apenas impressos no console com System.out.println.
+                    // Numa aplicação real, os estornos deveriam ser processados (ex: notificar usuários,
+                    // registrar em banco de dados). Deixar apenas um System.out.println é código incompleto.
                     estornos.forEach((usuario, valor) ->
                             System.out.println("Estorno de R$ " + valor + " para " + usuario.getEmail())
                     );

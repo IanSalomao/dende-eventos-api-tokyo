@@ -30,6 +30,10 @@ public abstract class Usuario {
         this.ativo = true;
     }
 
+    // [AVALIAÇÃO - Item 8] O método retorna uma String formatada em vez de um objeto (DTO).
+    // Retornar uma String dificulta o consumo e a serialização padronizada dos dados pelo controller.
+    // Sugestão: crie um UsuarioPerfilDTO com os campos nome, idade, sexo, email e retorne-o.
+    // Código sugerido: public UsuarioPerfilDTO visualizarPerfil()
     public String visualizarPerfil() {
         return "Nome: " + nome +
                 "\nIdade: " + calcularIdade() +
@@ -41,6 +45,10 @@ public abstract class Usuario {
         this.ativo = false;
     }
 
+    // [AVALIAÇÃO - Item 7] O método reativarUsuario() lança exceção se as credenciais forem inválidas.
+    // Se chamado mais de uma vez com credenciais corretas num usuário já ativo, não causa efeito colateral
+    // (define true sobre true). Porém, considere verificar se o usuário já está ativo antes de prosseguir
+    // para tornar a operação explicitamente idempotente e mais legível.
     public void reativarUsuario(String email, String senha) {
         if (!this.email.equals(email) || !this.senha.equals(senha)) {
             throw new IllegalArgumentException("E-mail ou senha incorretos.");
@@ -59,6 +67,9 @@ public abstract class Usuario {
     }
 
 
+    // [AVALIAÇÃO - Item 8] O campo 'id' não possui getter público. Sem acesso ao id do usuário,
+    // é impossível utilizá-lo como referência em outras partes da aplicação ou retorná-lo em respostas.
+    // Sugestão: adicione: public Long getId() { return id; }
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
     public void setDataNascimento(LocalDate dataNascimento) { this.dataNascimento = dataNascimento; }

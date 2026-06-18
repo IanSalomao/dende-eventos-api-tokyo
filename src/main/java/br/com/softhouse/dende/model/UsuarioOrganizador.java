@@ -70,6 +70,10 @@ public class UsuarioOrganizador extends Usuario {
         evento.alterarDados(novosDados);
     }
 
+    // [AVALIAÇÃO - Item 6] O método listarMeusEventos() retorna a lista sem ordenação.
+    // A ordenação acontece no Controller, mas ordenar por data e nome é uma regra de negócio (US11)
+    // e deveria ser aplicada aqui ou no repositório, não no controller.
+    // Sugestão: retorne a lista já ordenada por dataInicio e nome.
     public List<Evento> listarMeusEventos() {
         return Collections.unmodifiableList(eventos);
     }

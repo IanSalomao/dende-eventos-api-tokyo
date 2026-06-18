@@ -24,6 +24,9 @@ public class UsuarioComumController {
         this.repositorio = Repositorio.getInstance();
     }
 
+    // [AVALIAÇÃO - Item 9] O método retorna 200 OK para criação de recurso.
+    // Para operações de criação (POST), o status correto é 201 Created.
+    // Código sugerido: return ResponseEntity.status(201, "Usuario " + usuarioComum.getEmail() + " cadastrado com sucesso!");
     @PostMapping
     public ResponseEntity<String> cadastrarUsuario(@RequestBody UsuarioComum usuarioComum) {
         try {
@@ -34,6 +37,9 @@ public class UsuarioComumController {
         }
     }
 
+    // [AVALIAÇÃO - Item 8] O método retorna usuario.visualizarPerfil() que é uma String formatada.
+    // Uma API REST deveria retornar objetos estruturados (DTO/JSON), não Strings concatenadas.
+    // Sugestão: crie um UsuarioPerfilDTO e retorne ResponseEntity.ok(perfilDTO).
     @GetMapping(path = "/{email}")
     public ResponseEntity<?> visualizarPerfil(@PathVariable(parameter = "email") String email) {
         Usuario usuario = repositorio.buscarUsuarioComum(email);
@@ -55,6 +61,9 @@ public class UsuarioComumController {
         }
     }
 
+    // [AVALIAÇÃO - Item 9] Quando o usuário já está inativo, retorna 400 (Bad Request).
+    // Um conflito de estado seria melhor representado por 409 (Conflict).
+    // Código sugerido: return ResponseEntity.status(409, "Usuario ja esta inativo.");
     @PatchMapping(path = "/{email}/desativar")
     public ResponseEntity<String> desativarUsuario(@PathVariable(parameter = "email") String email) {
         Usuario usuario = repositorio.buscarUsuarioComum(email);
@@ -84,6 +93,11 @@ public class UsuarioComumController {
         }
     }
 
+    // [AVALIAÇÃO - Item 9] O método retorna 200 OK para criação de ingresso.
+    // Para operações de criação (POST), o status correto é 201 Created.
+    // [AVALIAÇÃO - Item 4] A resposta usa uma classe anônima (new Object() {...}) para montar o JSON.
+    // Isso é um code smell. Crie um DTO nomeado para a resposta da compra, ex: CompraResponseDTO.
+    // [AVALIAÇÃO - Item 14] O campo 'valorTotal' da classe anônima é 'double'. Use BigDecimal.
     @PostMapping(path = "/{email}/eventos/{eventoId}/ingressos")
     public ResponseEntity<?> comprarIngresso(
             @PathVariable(parameter = "email") String email,
@@ -148,6 +162,9 @@ public class UsuarioComumController {
         }
     }
 
+    // [AVALIAÇÃO - Item 9] O método usa @PutMapping para uma operação de cancelamento parcial de recurso.
+    // PUT substitui o recurso inteiro. Para atualização parcial de estado, use @PatchMapping.
+    // Código sugerido: @PatchMapping(path = "/{email}/ingressos/{ingressoId}/cancelar")
     @PutMapping(path = "/{email}/ingressos/{ingressoId}/cancelar")
     public ResponseEntity<String> cancelarIngresso(
             @PathVariable(parameter = "email") String email,

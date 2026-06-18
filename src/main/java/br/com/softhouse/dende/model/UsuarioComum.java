@@ -66,9 +66,19 @@ public class UsuarioComum extends Usuario{
     }
 
 
+    // [AVALIAÇÃO - Item 6] O método comprarIngresso() acumula muitas responsabilidades na camada de modelo:
+    // cria ingressos, adiciona ao histórico do usuário, adiciona à lista do evento e retorna um DTO.
+    // A lógica de orquestração (adicionar ingresso ao evento e ao usuário) deveria ser coordenada por
+    // um serviço ou pelo repositório, mantendo o modelo focado nas regras de negócio.
+    // [AVALIAÇÃO - Item 14] A variável 'valorTotal' usa 'double', que é inadequado para valores financeiros.
+    // Sugestão: use BigDecimal para valorTotal.
+    // Código sugerido: BigDecimal valorTotal = BigDecimal.ZERO;
+    //                  valorTotal = valorTotal.add(eventoPrincipal.getPrecoIngresso());
     public CompraIngressoDTO comprarIngresso(Evento evento) {
         List<Ingresso> ingressosGerados = new ArrayList<>();
 
+        // [AVALIAÇÃO - Item 14] Valor financeiro representado com 'double'.
+        // Sugestão: BigDecimal valorTotal = BigDecimal.ZERO;
         double valorTotal = 0.0;
 
         if (evento.getEventoPrincipal() != null) {

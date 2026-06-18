@@ -16,6 +16,12 @@ public class EventoController {
         this.repositorio = Repositorio.getInstance();
     }
 
+    // [AVALIAÇÃO - Item 9] O método retorna 200 OK para a listagem, o que é adequado para GET.
+    // Porém, não há tratamento de exceção: se feedEventos() lançar qualquer erro, a exceção
+    // escapará sem retorno HTTP adequado. Sugestão: envolva em try-catch retornando 500.
+    // [AVALIAÇÃO - Item 4] O EventoResponseDTO retorna apenas nome, descricao, dataHoraInicio, dataHoraFim e nomeOrganizador.
+    // Para um feed de eventos (US12), faltam campos essenciais como precoIngresso, localAcesso,
+    // modalidade e capacidadeMaxima, que o usuário precisaria para decidir se deseja comprar o ingresso.
     @GetMapping
     public ResponseEntity<List<EventoResponseDTO>> feedEventos() {
         List<EventoResponseDTO> lista = repositorio.feedEventos()

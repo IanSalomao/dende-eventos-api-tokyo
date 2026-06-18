@@ -14,6 +14,10 @@ import java.util.List;
 import java.util.Map;
 
 public class Evento {
+    // [AVALIAÇÃO - Item 2] O campo 'id' usa o tipo primitivo 'long', enquanto em outras entidades
+    // (ex: Ingresso, Usuario) é utilizado o tipo 'Long' (wrapper). Para consistência, prefira Long
+    // em todos os IDs de entidades para permitir null como estado "não atribuído".
+    // Código sugerido: private Long id;
     private long id;
     private String nome;
     private String descricao;
@@ -24,6 +28,10 @@ public class Evento {
     private ModalidadeEvento modalidade;
     private Integer capacidadeMaxima;
     private String localAcesso;
+    // [AVALIAÇÃO - Item 2] O campo 'status' não possui valor padrão e fica como null após construção com new Evento().
+    // Isso pode gerar NullPointerException em comparações como 'status == StatusEvento.ATIVO'.
+    // Sugestão: inicialize explicitamente com StatusEvento.INATIVO para deixar claro o estado inicial.
+    // Código sugerido: private StatusEvento status = StatusEvento.INATIVO;
     private StatusEvento status;
     private BigDecimal precoIngresso;
     private Boolean permiteEstorno;
@@ -137,7 +145,10 @@ public class Evento {
     }
 
     private void validarDatas(LocalDateTime dataInicio, LocalDateTime dataFinal) {
-
+        // [AVALIAÇÃO - Item 3] A verificação de null usa comparação direta (== null).
+        // Sugestão: use Objects.requireNonNull() para cada parâmetro individualmente:
+        // Objects.requireNonNull(dataInicio, "Data de início não pode ser nula.");
+        // Objects.requireNonNull(dataFinal, "Data final não pode ser nula.");
         if (dataInicio == null || dataFinal == null)
             throw new IllegalArgumentException("Datas e Horários não podem ser nulos.");
         if (dataInicio.isBefore(LocalDateTime.now()))
@@ -179,6 +190,8 @@ public class Evento {
     }
 
     public void atribuirOrganizador(UsuarioOrganizador usuarioOrganizador) {
+        // [AVALIAÇÃO - Item 3] Verificação com (variável != null). Prefira Objects.nonNull() para maior expressividade.
+        // Código sugerido: if (Objects.nonNull(this.usuarioOrganizador)) throw new IllegalArgumentException(...)
         if (this.usuarioOrganizador != null) throw new IllegalArgumentException("Esse evento já possui organizador");
 
         this.usuarioOrganizador = usuarioOrganizador;
@@ -190,6 +203,9 @@ public class Evento {
             throw new IllegalArgumentException("Apenas eventos ativos podem ser alterados. Status atual: " + this.status);
         }
 
+        // [AVALIAÇÃO - Item 3] As verificações de null abaixo usam (variável != null).
+        // Sugestão: use Objects.nonNull() para maior expressividade:
+        // LocalDateTime novoHorarioInicio = Objects.nonNull(novosDados.getDataInicio()) ? novosDados.getDataInicio() : this.dataInicio;
         LocalDateTime novoHorarioInicio = (novosDados.getDataInicio() != null) ? novosDados.getDataInicio() : this.dataInicio;
         LocalDateTime novoHorarioFim = (novosDados.getDataFinal() != null) ? novosDados.getDataFinal() : this.dataFinal;
         Boolean novoPermiteEstorno = (novosDados.isPermiteEstorno() != null) ? novosDados.isPermiteEstorno() : this.permiteEstorno;
@@ -255,6 +271,13 @@ public class Evento {
         return this.status == StatusEvento.ATIVO;
     }
 
+    // [AVALIAÇÃO - Item 14] O método retorna 'double' para representar um valor financeiro.
+    // Valores financeiros DEVEM usar BigDecimal para evitar erros de arredondamento com ponto flutuante.
+    // Código sugerido: public BigDecimal calcularValorEstorno(Ingresso ingresso) {
+    //     if (permiteEstorno == null || !permiteEstorno) return BigDecimal.ZERO;
+    //     if (taxaEstorno == null) return ingresso.getValorPago();
+    //     return ingresso.getValorPago().subtract(ingresso.getValorPago().multiply(taxaEstorno));
+    // }
     public double calcularValorEstorno(Ingresso ingresso) {
         if (permiteEstorno == null || !permiteEstorno) {
             return 0;
@@ -266,6 +289,10 @@ public class Evento {
         return valor - (valor * this.taxaEstorno.doubleValue());
     }
 
+    // [AVALIAÇÃO - Item 7] O método ativarEvento() chama validarDatas() internamente.
+    // Se houver um delay entre a criação e a ativação do evento, as datas podem já ter passado,
+    // fazendo a validação lançar exceção e impedindo a ativação. Considere separar a validação
+    // de datas da lógica de ativação para evitar esse efeito colateral.
     public void ativarEvento() {
         if (this.status == StatusEvento.ATIVO) {
             throw new IllegalStateException("Evento já está ativo.");
@@ -274,6 +301,12 @@ public class Evento {
         this.status = StatusEvento.ATIVO;
     }
 
+    // [AVALIAÇÃO - Item 6] O método desativarEvento() acumula duas responsabilidades:
+    // (1) mudar o status do evento para INATIVO e (2) calcular os estornos de todos os ingressos.
+    // O processamento dos estornos poderia ser responsabilidade de um serviço, mantendo este método
+    // focado apenas na mudança de estado.
+    // [AVALIAÇÃO - Item 8] O retorno Map<UsuarioComum, BigDecimal> mistura entidade de domínio com valor.
+    // Sugestão: considere retornar uma List<EstornoDTO> com os dados necessários para processar o estorno.
     public Map<UsuarioComum, BigDecimal> desativarEvento() {
         if (this.status != StatusEvento.ATIVO) {
             throw new IllegalStateException("Evento não está ativo.");
